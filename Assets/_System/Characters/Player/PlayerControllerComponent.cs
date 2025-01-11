@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,14 +8,17 @@ public class PlayerControllerComponent : MonoBehaviour
 
     private GameInputs _gameInputs = null;
 
+    [SerializeField]
+    private PlayerCameraComponent _camera = null;
+
     private PlayerMovementComponent _movement = null;
     private PlayerJumpComponent _jump = null;
     private PlayerDashComponent _dash = null;
 
     private Vector3 _movementDirection = Vector3.zero;
-    private Vector3 _previousMovementDirection = Vector3.zero;
+    private Vector3 _previousMovementDirection;
 
-    private float _delta = 0f;
+    private Vector2 _cameraLookInput;
 
     #endregion
 
@@ -31,6 +35,14 @@ public class PlayerControllerComponent : MonoBehaviour
 
         if (!TryGetComponent<PlayerDashComponent>(out _dash))
             Debug.LogError($"{nameof(PlayerDashComponent)} component not found", this);
+
+        //Camera cam = GetComponentInChildren<Camera>();
+        //if (cam == null)
+        //    Debug.LogError($"{nameof(Camera)} component not found in child", this);
+
+        //_camera = cam.GetComponent<PlayerCameraComponent>();
+        //if (_camera == null)
+        //    Debug.LogError($"{nameof(PlayerCameraComponent)} component not found in camera", this);
     }
 
 
@@ -53,11 +65,16 @@ public class PlayerControllerComponent : MonoBehaviour
 
     void FixedUpdate()
     {
-        _delta = Time.fixedDeltaTime;
-        UpdateMovement(_delta);
+        float delta = Time.fixedDeltaTime;
+        UpdateMovement(delta);
     }
 
+    private void LateUpdate()
+    {
 
+        float delta = Time.deltaTime;
+        UpdateCameraLook(delta);
+    }
 
     #endregion
 
@@ -74,6 +91,9 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _gameInputs.Game.Sprint.started += HandleSprintInput;
         _gameInputs.Game.Sprint.canceled += HandleSprintInput;
+
+        _gameInputs.Game.Look.performed += HandleLookInput;
+        _gameInputs.Game.Look.canceled += HandleLookInput;
     }
 
     private void UnBindInputs()
@@ -87,19 +107,34 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _gameInputs.Game.Sprint.started -= HandleSprintInput;
         _gameInputs.Game.Sprint.canceled -= HandleSprintInput;
-    }
 
+        _gameInputs.Game.Look.performed -= HandleLookInput;
+        _gameInputs.Game.Look.canceled -= HandleLookInput;
+    }
     private void UpdateMovement(float delta)
     {
-        if (_movementDirection == Vector3.zero) return;
+        if (_movementDirection == Vector3.zero)
+            return;
 
-        _movementDirection.Normalize();
+        Vector3 cameraForward = _camera.transform.forward;
+        Vector3 cameraRight = _camera.transform.right;
 
-        Vector3 movement3D = new Vector3(_movementDirection.x, 0, _movementDirection.y);
+        cameraForward.y = 0;
+        cameraRight.y = 0;
+
+
+        Vector3 movement3D = cameraForward * _movementDirection.y + cameraRight * _movementDirection.x;
+        movement3D.Normalize();
+
+        //@todo in movement component
+        if (movement3D != Vector3.zero)
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movement3D), delta * 10f);
+
+        _previousMovementDirection = movement3D;
+
         _movement.Move(movement3D, delta);
-
-        _previousMovementDirection = _movementDirection;
     }
+
 
     private void HandleMoveInput(InputAction.CallbackContext context)
     {
@@ -118,7 +153,20 @@ public class PlayerControllerComponent : MonoBehaviour
 
     private void HandleDashInput(InputAction.CallbackContext context)
     {
-        _dash.Dash();
+        //Vector3 dashDirection = _movementDirection == Vector3.zero ? _previousMovementDirection : _movementDirection; 
+        //_dash.Dash(_movementDirection);
+        _dash.Dash(transform.forward);
+    }
+    private void HandleLookInput(InputAction.CallbackContext context)
+    {
+        _cameraLookInput = context.ReadValue<Vector2>();
+    }
+
+    private void UpdateCameraLook(float delta)
+    {
+        _cameraLookInput.Normalize();
+
+        _camera.Look(_cameraLookInput, delta);
     }
 
     #endregion

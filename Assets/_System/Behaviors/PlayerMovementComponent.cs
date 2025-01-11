@@ -12,6 +12,7 @@ public class PlayerMovementComponent : MonoBehaviour
 
     private float _maxSpeed = 1.0f;
     private float _speed = 1.0f;
+    private float _smoothness = 1.0f;
 
     private Vector3 _previousMovement;
 
@@ -73,5 +74,7 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         _speed = _movementAsset.Speed;
         _maxSpeed = _movementAsset.MaxSpeed;
+
+        _smoothness = _movementAsset.Smoothness;
     }
 }

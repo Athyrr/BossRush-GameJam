@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerJumpComponent : MonoBehaviour
 {
@@ -17,18 +18,11 @@ public class PlayerJumpComponent : MonoBehaviour
     [SerializeField]
     private float maxFallingSpeed = 10f;
 
-    [SerializeField]
-    private LayerMask groundLayer;
 
-    [SerializeField]
-    private float _groundDetectionRange = 0.2f;
-
+    private PlayerComponent _player = null;
     private Rigidbody _rigidbody = null;
-    private float _halfHeight = 0;
 
     private float coyoteTimeCounter;
-    private bool _isGrounded;
-
 
     private void Awake()
     {
@@ -44,14 +38,17 @@ public class PlayerJumpComponent : MonoBehaviour
             return;
         }
 
-        _halfHeight = GetComponent<Collider>().bounds.extents.y;
+        if (!TryGetComponent<PlayerComponent>(out _player))
+        {
+            Debug.LogError("player component not found!");
+            return;
+        }
 
         Init();
     }
 
     private void Update()
     {
-        CheckGrounded();
         HandleCoyoteTime(Time.deltaTime);
     }
 
@@ -62,7 +59,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void HandleFalling()
     {
-        if (_isGrounded)
+        if (_player.IsGrounded)
             return;
 
         _rigidbody.AddForce(Vector3.down * gravityMultiplier, ForceMode.Acceleration);
@@ -76,7 +73,7 @@ public class PlayerJumpComponent : MonoBehaviour
     {
         Debug.Log("Jump");
 
-        if (!_isGrounded || coyoteTimeCounter <= 0f)
+        if (!_player.IsGrounded && coyoteTimeCounter <= 0f)
             return false;
 
         Debug.Log("JumpEnter");
@@ -89,24 +86,11 @@ public class PlayerJumpComponent : MonoBehaviour
 
     }
 
-    private void CheckGrounded()
-    {
-        _isGrounded = Physics.Raycast(_rigidbody.position, Vector3.down, _halfHeight + _groundDetectionRange, groundLayer);
-        Debug.Log("Is grounded :" + _isGrounded);
-    }
 
-    private void OnDrawGizmos()
-    {
-        if (_rigidbody == null)
-            return;
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.down * (_halfHeight + _groundDetectionRange));
-    }
 
     private void HandleCoyoteTime(float delta)
     {
-        if (_isGrounded)
+        if (_player.IsGrounded)
             coyoteTimeCounter = coyoteTime;
         else
             coyoteTimeCounter -= delta;

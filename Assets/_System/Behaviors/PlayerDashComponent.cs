@@ -2,18 +2,25 @@ using UnityEngine;
 
 public class PlayerDashComponent : MonoBehaviour
 {
+    #region Fields
+
     [SerializeField]
+    private EntityDashSO _dashSettings = null;
+
+
     private float _dashForce = 0f;
 
-    [SerializeField]
     private float _coolddown = 0f;
 
-    [SerializeField]
     private float _dashDuration = 0f;
 
-    [SerializeField]
     private AnimationCurve _dashMomentum = null;
 
+    private bool _allowDashInAir;
+
+    private LayerMask _wallLayer;
+
+    private LayerMask _enemyLayer;
 
     private Rigidbody _rigidbody = null;
 
@@ -39,9 +46,10 @@ public class PlayerDashComponent : MonoBehaviour
 
     private bool _isDashPerfomed = false;
 
+    #endregion
 
-    public bool IsDashing => _dashTimer < _dashDuration && _isDashPerfomed;
 
+    #region Lifecycle
 
     private void Awake()
     {
@@ -86,6 +94,31 @@ public class PlayerDashComponent : MonoBehaviour
             _runningCooldown -= delta;
     }
 
+    private void Init()
+    {
+        if (_dashSettings == null)
+        {
+            Debug.LogError("Dash settings not found.", this);
+            return;
+        }
+
+        _dashForce = _dashSettings.DashForce;
+        _coolddown = _dashSettings.Coolddown;
+        _dashDuration = _dashSettings.Duration;
+        _dashMomentum = _dashSettings.Momentum;
+        _allowDashInAir = _dashSettings.AllowDashInAir;
+
+        _wallLayer = _dashSettings.WallLayer;
+        _enemyLayer = _dashSettings.EnemyLayer;
+    }
+
+    #endregion
+
+
+    #region Public API
+    public bool IsDashing => _dashTimer < _dashDuration && _isDashPerfomed;
+    public EntityDashSO Settings => _dashSettings;
+
     public bool Dash(Vector3 direction)
     {
 
@@ -105,7 +138,10 @@ public class PlayerDashComponent : MonoBehaviour
         _dashOrigin = _rigidbody.position;
         _dashFinalPos = _dashOrigin + direction * _dashForce;
 
-        //_dashFinalPos.y = Mathf.Max(1, _dashFinalPos.y);
+        if (DetectCollisions(direction, out RaycastHit hit))
+        {
+            _dashFinalPos = hit.point - direction * 0.2f;
+        }
 
         _dashTimer = 0;
         _runningCooldown = _coolddown;
@@ -115,18 +151,33 @@ public class PlayerDashComponent : MonoBehaviour
         return true;
     }
 
-    private void Init()
+    #endregion
+
+
+    #region Private API
+
+    private bool DetectCollisions(Vector3 direction, out RaycastHit hit)
     {
-        // Allow dash while standing
+        if (Physics.Raycast(_dashOrigin, direction, out hit, _dashForce, _wallLayer))
+            return true;
+
+        return false;
     }
 
+
+    #endregion
+
+
+    #region Debug
 
     private void OnDrawGizmos()
     {
         if (_dashOrigin != Vector3.zero && _dashFinalPos != Vector3.zero)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = _dashSettings.DebugColor;
             Gizmos.DrawLine(_dashOrigin, _dashFinalPos);
         }
     }
+
+    #endregion
 }

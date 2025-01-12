@@ -67,6 +67,7 @@ public class PlayerMovementComponent : MonoBehaviour
         if (DetectCollisions(direction, out RaycastHit hit))
         {
             _rigidbody.position = hit.point - direction * _halfSize;
+            _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, -_rigidbody.linearVelocity.y, _rigidbody.linearVelocity.z);
             if (_previousMovement != Vector3.zero)
             {
                 _onMoveEnd.Invoke(new MovementInfo(this, _speed, Vector3.zero, transform.position));

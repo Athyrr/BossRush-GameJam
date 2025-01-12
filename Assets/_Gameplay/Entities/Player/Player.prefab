@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95653f3d90b02fc4e9d26b85723a9500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementAsset: {fileID: 11400000, guid: 3b5b436edc1663445aa0f879eacdedd0, type: 2}
+  _movementSettings: {fileID: 11400000, guid: 3b5b436edc1663445aa0f879eacdedd0, type: 2}
 --- !u!114 &7296452979934260358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,51 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35f3d0b15113b3429f33b9a88fb23cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dashForce: 20
-  _coolddown: 1
-  _dashDuration: 3
-  _dashMomentum:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1.0566038
-      outSlope: 1.0566038
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.125
-    - serializedVersion: 3
-      time: 0.21195891
-      value: 0.12327933
-      inSlope: 0.6787349
-      outSlope: 0.6787349
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.7388124
-      value: 0.8291046
-      inSlope: 1.6083498
-      outSlope: 1.6083498
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: -0.0080862725
-      outSlope: -0.0080862725
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 1
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  _dashSettings: {fileID: 11400000, guid: e6d40ddb9f8e33e4baf4183b54bf93ab, type: 2}
 --- !u!114 &8103680496180993717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,3 +206,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba9cdc909a63534dad1a43965b4cb7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _jumpSettings: {fileID: 11400000, guid: 1ad7c05d2ddfdbe4c8e2fdc307aae5f9, type: 2}
+  jumpForce: 10
+  gravityMultiplier: 2
+  coyoteTime: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 256

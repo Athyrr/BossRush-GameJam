@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 340973397}
   - component: {fileID: 340973396}
   - component: {fileID: 340973399}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1641,26 +1641,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4129684038643033375, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
-      propertyPath: _movementSettings
-      value: 
-      objectReference: {fileID: 11400000, guid: 3b5b436edc1663445aa0f879eacdedd0, type: 2}
     - target: {fileID: 4216003089849369976, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
       propertyPath: _camera
       value: 
       objectReference: {fileID: 1347730425}
-    - target: {fileID: 7296452979934260358, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
-      propertyPath: _dashForce
-      value: 20
+    - target: {fileID: 8103680496180993717, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
+      propertyPath: jumpForce
+      value: 40
       objectReference: {fileID: 0}
-    - target: {fileID: 7296452979934260358, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
-      propertyPath: _dashDuration
-      value: 0.3
+    - target: {fileID: 8103680496180993717, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
+      propertyPath: maxFallingSpeed
+      value: 30
       objectReference: {fileID: 0}
-    - target: {fileID: 7296452979934260358, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
-      propertyPath: _dashSettings
-      value: 
-      objectReference: {fileID: 11400000, guid: e6d40ddb9f8e33e4baf4183b54bf93ab, type: 2}
+    - target: {fileID: 8103680496180993717, guid: fbbcca65c9bf3d546bdf642c941ae85d, type: 3}
+      propertyPath: gravityMultiplier
+      value: 80
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

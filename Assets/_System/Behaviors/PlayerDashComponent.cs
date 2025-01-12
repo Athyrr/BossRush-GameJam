@@ -143,6 +143,8 @@ public class PlayerDashComponent : MonoBehaviour
             _dashFinalPos = hit.point - direction * 0.2f;
         }
 
+        _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
+
         _dashTimer = 0;
         _runningCooldown = _coolddown;
 

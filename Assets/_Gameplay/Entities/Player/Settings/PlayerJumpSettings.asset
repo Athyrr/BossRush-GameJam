@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0f1484fde78bbf4d8a69716f9184902, type: 3}
-  m_Name: DashSO
+  m_Script: {fileID: 11500000, guid: 520c6cf69140de742a76f7371384cdf4, type: 3}
+  m_Name: PlayerJumpSettings
   m_EditorClassIdentifier: 

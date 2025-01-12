@@ -6,7 +6,7 @@ using UnityEngine.Events;
 public class PlayerMovementComponent : MonoBehaviour
 {
     [SerializeField]
-    private EntityMovementSO _movementAsset = null;
+    private EntityMovementSO _movementSettings = null;
 
     private Rigidbody _rigidbody = null;
 
@@ -16,6 +16,7 @@ public class PlayerMovementComponent : MonoBehaviour
 
     private Vector3 _previousMovement;
 
+    private float _halfSize = 0;
 
     private UnityEvent<MovementInfo> _onMoveStart = new();
     private UnityEvent<MovementInfo> _onMoveUpdate = new();
@@ -31,18 +32,21 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         //@todo Set settings about MoveSO.
 
-        if (_movementAsset == null)
+        if (_movementSettings == null)
         {
             Debug.LogError("MovementSO field is empty !");
             return;
         }
+
+        _halfSize = GetComponent<Collider>().bounds.extents.z;
+
 
         Init();
     }
 
     public bool Move(Vector3 direction, float delta)
     {
-        _speed = Mathf.Max(0, _speed);
+        _speed = Mathf.Clamp(_movementSettings.Speed, 0, _movementSettings.MaxSpeed);
 
         if (direction == Vector3.zero || _speed <= 0)
         {
@@ -58,11 +62,23 @@ public class PlayerMovementComponent : MonoBehaviour
         direction.Normalize();
 
         Vector3 previousPosition = transform.position;
-
         Vector3 velocity = direction * _speed * delta;
-        _rigidbody.position += velocity;
 
-        _onMoveUpdate.Invoke(new MovementInfo(this, _speed, direction, transform.position));
+        if (DetectCollisions(direction, out RaycastHit hit))
+        {
+            _rigidbody.position = hit.point - direction * _halfSize;
+            if (_previousMovement != Vector3.zero)
+            {
+                _onMoveEnd.Invoke(new MovementInfo(this, _speed, Vector3.zero, transform.position));
+                _previousMovement = Vector3.zero;
+            }
+        }
+        else
+        {
+            _rigidbody.position += velocity;
+            _onMoveUpdate.Invoke(new MovementInfo(this, _speed, direction, transform.position));
+        }
+
 
         if (_previousMovement == Vector3.zero)
             _onMoveStart.Invoke(new MovementInfo(this, _speed, direction, previousPosition));
@@ -72,9 +88,31 @@ public class PlayerMovementComponent : MonoBehaviour
 
     private void Init()
     {
-        _speed = _movementAsset.Speed;
-        _maxSpeed = _movementAsset.MaxSpeed;
+        _speed = _movementSettings.Speed;
+        _maxSpeed = _movementSettings.MaxSpeed;
 
-        _smoothness = _movementAsset.Smoothness;
+        _smoothness = _movementSettings.Smoothness;
     }
+
+    private bool DetectCollisions(Vector3 direction, out RaycastHit hit)
+    {
+        if (Physics.Raycast(_rigidbody.position, direction, out hit, _halfSize + _movementSettings.DetectionRange, _movementSettings.WallLayer))
+            return true;
+
+        return false;
+    }
+
+    #region Debug
+
+    private void OnDrawGizmos()
+    {
+        if (_rigidbody != null)
+        {
+            Gizmos.color = _movementSettings.DebugColor;
+            Gizmos.DrawWireSphere(_rigidbody.position, _halfSize + _movementSettings.DetectionRange);
+        }
+    }
+
+    #endregion
+
 }

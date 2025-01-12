@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -36,13 +37,8 @@ public class PlayerControllerComponent : MonoBehaviour
         if (!TryGetComponent<PlayerDashComponent>(out _dash))
             Debug.LogError($"{nameof(PlayerDashComponent)} component not found", this);
 
-        //Camera cam = GetComponentInChildren<Camera>();
-        //if (cam == null)
-        //    Debug.LogError($"{nameof(Camera)} component not found in child", this);
-
-        //_camera = cam.GetComponent<PlayerCameraComponent>();
-        //if (_camera == null)
-        //    Debug.LogError($"{nameof(PlayerCameraComponent)} component not found in camera", this);
+        if (FindFirstObjectByType<PlayerCameraComponent>() == null)
+            Debug.LogError($"{nameof(PlayerCameraComponent)} component not found", this);
     }
 
 
@@ -153,8 +149,9 @@ public class PlayerControllerComponent : MonoBehaviour
 
     private void HandleDashInput(InputAction.CallbackContext context)
     {
-        //Vector3 dashDirection = _movementDirection == Vector3.zero ? _previousMovementDirection : _movementDirection; 
-        //_dash.Dash(_movementDirection);
+        if (!_dash.Settings.AllowDashWhileStanding && _movementDirection == Vector3.zero)
+            return;
+
         _dash.Dash(transform.forward);
     }
     private void HandleLookInput(InputAction.CallbackContext context)

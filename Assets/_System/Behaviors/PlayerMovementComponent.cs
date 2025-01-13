@@ -5,22 +5,26 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovementComponent : MonoBehaviour
 {
+    #region Fields
+
     [SerializeField]
-    private EntityMovementSO _movementSettings = null;
+    private EntityMovementSO _settings = null;
 
+
+    private PlayerComponent _player = null;
     private Rigidbody _rigidbody = null;
-
-    private float _maxSpeed = 1.0f;
     private float _speed = 1.0f;
-    private float _smoothness = 1.0f;
-
     private Vector3 _previousMovement;
-
     private float _halfSize = 0;
 
     private UnityEvent<MovementInfo> _onMoveStart = new();
     private UnityEvent<MovementInfo> _onMoveUpdate = new();
     private UnityEvent<MovementInfo> _onMoveEnd = new();
+
+    #endregion
+
+
+    #region Lifecycle
 
     private void Awake()
     {
@@ -30,29 +34,44 @@ public class PlayerMovementComponent : MonoBehaviour
 
     private void Start()
     {
-        //@todo Set settings about MoveSO.
-
-        if (_movementSettings == null)
+        if (_settings == null)
         {
             Debug.LogError("MovementSO field is empty !");
             return;
         }
 
+        if (!TryGetComponent<PlayerComponent>(out _player))
+        {
+            Debug.LogError("player component not found!");
+            return;
+        }
+
         _halfSize = GetComponent<Collider>().bounds.extents.z;
 
-
         Init();
+
     }
+
+    private void Init()
+    {
+        _speed = _settings.Speed;
+    }
+
+    #endregion
+
+
+    #region Public API
+
+    public UnityEvent<MovementInfo> OnMoveStart => _onMoveStart;
 
     public bool Move(Vector3 direction, float delta)
     {
-        _speed = Mathf.Clamp(_movementSettings.Speed, 0, _movementSettings.MaxSpeed);
+        _speed = Mathf.Clamp(_settings.Speed, 0, _settings.MaxSpeed);
 
-        if (direction == Vector3.zero || _speed <= 0)
+        if ((direction == Vector3.zero && _player.IsGrounded) || _speed <= 0)
         {
             if (_previousMovement != Vector3.zero)
             {
-                //@todo Invoke endMove event.
                 _onMoveEnd.Invoke(new MovementInfo(this, _speed, direction, transform.position));
                 _previousMovement = Vector3.zero;
             }
@@ -61,13 +80,26 @@ public class PlayerMovementComponent : MonoBehaviour
 
         direction.Normalize();
 
+        float control = _player.IsGrounded ? 1 : _settings.AirControl;
+
         Vector3 previousPosition = transform.position;
-        Vector3 velocity = direction * _speed * delta;
+        Vector3 velocity = direction * _settings.Speed/* _speed */* control * delta;
 
         if (DetectCollisions(direction, out RaycastHit hit))
         {
+            Debug.LogWarning("On WAll");
+            Debug.LogWarning("Velocity lin" + _rigidbody.linearVelocity);
+            Debug.LogWarning("Grounded" + _player.IsGrounded);
+
             _rigidbody.position = hit.point - direction * _halfSize;
-            _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, -_rigidbody.linearVelocity.y, _rigidbody.linearVelocity.z);
+
+
+            Vector3 vel = _player.IsGrounded ?
+                new Vector3(_rigidbody.linearVelocity.x, _rigidbody.linearVelocity.y, _rigidbody.linearVelocity.z)
+                : new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnWall, _rigidbody.linearVelocity.z);
+
+            _rigidbody.linearVelocity = vel;
+
             if (_previousMovement != Vector3.zero)
             {
                 _onMoveEnd.Invoke(new MovementInfo(this, _speed, Vector3.zero, transform.position));
@@ -87,21 +119,21 @@ public class PlayerMovementComponent : MonoBehaviour
         return true;
     }
 
-    private void Init()
-    {
-        _speed = _movementSettings.Speed;
-        _maxSpeed = _movementSettings.MaxSpeed;
+    #endregion
 
-        _smoothness = _movementSettings.Smoothness;
-    }
+
+    #region Private API
 
     private bool DetectCollisions(Vector3 direction, out RaycastHit hit)
     {
-        if (Physics.Raycast(_rigidbody.position, direction, out hit, _halfSize + _movementSettings.DetectionRange, _movementSettings.WallLayer))
+        if (Physics.Raycast(_rigidbody.position, direction, out hit, _halfSize + _settings.DetectionRange, _settings.WallLayer))
             return true;
 
         return false;
     }
+
+    #endregion
+
 
     #region Debug
 
@@ -109,11 +141,10 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         if (_rigidbody != null)
         {
-            Gizmos.color = _movementSettings.DebugColor;
-            Gizmos.DrawWireSphere(_rigidbody.position, _halfSize + _movementSettings.DetectionRange);
+            Gizmos.color = _settings.DebugColor;
+            Gizmos.DrawWireSphere(_rigidbody.position, _halfSize + _settings.DetectionRange);
         }
     }
 
     #endregion
-
 }

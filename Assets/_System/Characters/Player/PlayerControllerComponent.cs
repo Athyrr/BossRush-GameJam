@@ -85,9 +85,6 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _gameInputs.Game.Dash.started += HandleDashInput;
 
-        _gameInputs.Game.Sprint.started += HandleSprintInput;
-        _gameInputs.Game.Sprint.canceled += HandleSprintInput;
-
         _gameInputs.Game.Look.performed += HandleLookInput;
         _gameInputs.Game.Look.canceled += HandleLookInput;
     }
@@ -100,9 +97,6 @@ public class PlayerControllerComponent : MonoBehaviour
         _gameInputs.Game.Jump.started -= HandleJumpInput;
 
         _gameInputs.Game.Dash.started -= HandleDashInput;
-
-        _gameInputs.Game.Sprint.started -= HandleSprintInput;
-        _gameInputs.Game.Sprint.canceled -= HandleSprintInput;
 
         _gameInputs.Game.Look.performed -= HandleLookInput;
         _gameInputs.Game.Look.canceled -= HandleLookInput;

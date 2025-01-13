@@ -119,7 +119,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 80
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!136 &308068551307853697
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -155,6 +155,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41216b6c2a3a50f48b6247bff86b9426, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 320
+  _groundDetectionRange: 0.2
 --- !u!114 &4216003089849369976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95653f3d90b02fc4e9d26b85723a9500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementSettings: {fileID: 11400000, guid: 3b5b436edc1663445aa0f879eacdedd0, type: 2}
+  _settings: {fileID: 11400000, guid: 3b5b436edc1663445aa0f879eacdedd0, type: 2}
 --- !u!114 &7296452979934260358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,10 +210,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba9cdc909a63534dad1a43965b4cb7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jumpSettings: {fileID: 11400000, guid: 1ad7c05d2ddfdbe4c8e2fdc307aae5f9, type: 2}
-  jumpForce: 10
-  gravityMultiplier: 2
-  coyoteTime: 0.2
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
+  _settings: {fileID: 11400000, guid: 1ad7c05d2ddfdbe4c8e2fdc307aae5f9, type: 2}

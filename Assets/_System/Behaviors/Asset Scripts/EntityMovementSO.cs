@@ -10,19 +10,23 @@ public class EntityMovementSO : ScriptableObject
     [SerializeField]
     private float _maxSpeed = 0;
 
-    [Header("Smoothness")]
-    [Min(0)]
+
+    [Header("Control")]
     [SerializeField]
-    private float _smoothness = 0;
+    [Range(0.0f, 1.0f)]
+    private float _airControl = 1f;
+
+    [SerializeField]
+    [Tooltip("Set to '1' means let the gravity moving the entity down.")]
+    [Min(1.0f)]
+    private float _fallingSpeedOnWall = 1f;
+
 
     [Header("Detection")]
     [SerializeField]
-    [Tooltip("The walls layer mask.")]
-    private LayerMask _wallLayer = ~0;
+    [Tooltip("The layer mask with which the entity will collide.")]
+    private LayerMask _collisionLayers = ~0;
 
-    [SerializeField]
-    [Tooltip("The NMEs layer mask.")]
-    private LayerMask _enemiesLayer = ~0;
 
     [Header("Debug")]
     [SerializeField]
@@ -36,10 +40,13 @@ public class EntityMovementSO : ScriptableObject
 
     public float Speed => _speed;
     public float MaxSpeed => _maxSpeed;
-    public float Smoothness => Mathf.Max(_smoothness, 1);
-    public LayerMask WallLayer => _wallLayer;
-    public LayerMask EnemyLayer => _enemiesLayer;
+
+    public float AirControl => Mathf.Clamp01(_airControl);
+    public float FallingSpeedOnWall => _fallingSpeedOnWall;
+
+    public LayerMask WallLayer => _collisionLayers;
     public float DetectionRange => _detectionRange;
+
     public Color DebugColor => _debugColor;
 
 }

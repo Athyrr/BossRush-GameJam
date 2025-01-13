@@ -14,12 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 30
   _maxSpeed: 50
-  _smoothness: 0
-  _wallLayer:
+  _airControl: 0.7
+  _collisionLayers:
     serializedVersion: 2
-    m_Bits: 64
-  _enemiesLayer:
-    serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 192
   _detectionRange: 0.8
   _debugColor: {r: 0.015686274, g: 0.017875826, b: 1, a: 1}

@@ -1,28 +1,23 @@
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerJumpComponent : MonoBehaviour
 {
-    [SerializeField]
-    private EntityJumpSO _jumpSettings = null;
+
+    #region Fields
 
     [SerializeField]
-    private float jumpForce = 10f;
-
-    [SerializeField]
-    private float gravityMultiplier = 2f;
-
-    [SerializeField]
-    private float coyoteTime = 0.2f;
-
-    [SerializeField]
-    private float maxFallingSpeed = 10f;
+    private EntityJumpSO _settings = null;
 
 
-    private PlayerComponent _player = null;
     private Rigidbody _rigidbody = null;
+    private PlayerComponent _player = null;
 
-    private float coyoteTimeCounter;
+    private float _coyoteTimeCounter;
+
+    #endregion
+
+
+    #region Lifecycle
 
     private void Awake()
     {
@@ -32,7 +27,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void Start()
     {
-        if (_jumpSettings == null)
+        if (_settings == null)
         {
             Debug.LogError("Jump settigns field is empty !");
             return;
@@ -57,42 +52,51 @@ public class PlayerJumpComponent : MonoBehaviour
         HandleFalling();
     }
 
-    private void HandleFalling()
-    {
-        if (_player.IsGrounded)
-            return;
-
-        _rigidbody.AddForce(Vector3.down * gravityMultiplier, ForceMode.Acceleration);
-        _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Mathf.Max(_rigidbody.linearVelocity.y, -maxFallingSpeed), _rigidbody.linearVelocity.z);
-    }
-
     private void Init() { }
 
+    #endregion
+
+
+    #region Public API
 
     public bool Jump()
     {
         Debug.Log("Jump");
+        Debug.Log("Y Velocity" + _rigidbody.linearVelocity.y);
 
-        if (!_player.IsGrounded && coyoteTimeCounter <= 0f)
+        if (!_player.IsGrounded && _coyoteTimeCounter <= 0f /* -0.1 <_rigidbody.linearVelocity.y &&  _rigidbody.linearVelocity.y < 0.1*/)
             return false;
 
-        Debug.Log("JumpEnter");
-
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
-        _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        coyoteTimeCounter = 0f;
+        _rigidbody.AddForce(Vector3.up * _settings.JumpForce, ForceMode.Impulse);
+        _coyoteTimeCounter = 0f;
 
         return true;
 
     }
 
+    #endregion
 
+
+    #region Private API
+
+    private void HandleFalling()
+    {
+        if (_player.IsGrounded)
+            return;
+
+        _rigidbody.AddForce(Vector3.down * _settings.GravityMultiplier, ForceMode.Acceleration);
+        _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Mathf.Max(_rigidbody.linearVelocity.y, -_settings.MaxFallingSpeed), _rigidbody.linearVelocity.z);
+    }
 
     private void HandleCoyoteTime(float delta)
     {
         if (_player.IsGrounded)
-            coyoteTimeCounter = coyoteTime;
+            _coyoteTimeCounter = _settings.CoyoteTime;
         else
-            coyoteTimeCounter -= delta;
+            _coyoteTimeCounter -= delta;
     }
+
+    #endregion
+
 }

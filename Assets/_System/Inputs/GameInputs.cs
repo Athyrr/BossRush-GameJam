@@ -46,15 +46,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Sprint"",
-                    ""type"": ""Button"",
-                    ""id"": ""cdfbcc7e-2105-4d05-a716-4ebb759531e3"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""1ad93c25-e60b-4235-afec-52ae5ec68aba"",
@@ -93,17 +84,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""602924b4-e1c9-4c95-a5db-23d4fac38c6a"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Sprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -226,7 +206,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         m_Game = asset.FindActionMap("Game", throwIfNotFound: true);
         m_Game_Move = m_Game.FindAction("Move", throwIfNotFound: true);
         m_Game_Jump = m_Game.FindAction("Jump", throwIfNotFound: true);
-        m_Game_Sprint = m_Game.FindAction("Sprint", throwIfNotFound: true);
         m_Game_Dash = m_Game.FindAction("Dash", throwIfNotFound: true);
         m_Game_Look = m_Game.FindAction("Look", throwIfNotFound: true);
     }
@@ -297,7 +276,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
     private List<IGameActions> m_GameActionsCallbackInterfaces = new List<IGameActions>();
     private readonly InputAction m_Game_Move;
     private readonly InputAction m_Game_Jump;
-    private readonly InputAction m_Game_Sprint;
     private readonly InputAction m_Game_Dash;
     private readonly InputAction m_Game_Look;
     public struct GameActions
@@ -306,7 +284,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         public GameActions(@GameInputs wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Game_Move;
         public InputAction @Jump => m_Wrapper.m_Game_Jump;
-        public InputAction @Sprint => m_Wrapper.m_Game_Sprint;
         public InputAction @Dash => m_Wrapper.m_Game_Dash;
         public InputAction @Look => m_Wrapper.m_Game_Look;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
@@ -324,9 +301,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
-            @Sprint.started += instance.OnSprint;
-            @Sprint.performed += instance.OnSprint;
-            @Sprint.canceled += instance.OnSprint;
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
@@ -343,9 +317,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
-            @Sprint.started -= instance.OnSprint;
-            @Sprint.performed -= instance.OnSprint;
-            @Sprint.canceled -= instance.OnSprint;
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
@@ -373,7 +344,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
-        void OnSprint(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
     }

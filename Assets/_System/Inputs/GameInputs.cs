@@ -62,6 +62,15 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""WallRun"",
+                    ""type"": ""Button"",
+                    ""id"": ""5a3b791c-24d5-4c14-b194-6ee5d6177057"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,17 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""73d3a07f-0dc6-4dab-a33d-4d7a5f571d29"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""WallRun"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -208,6 +228,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         m_Game_Jump = m_Game.FindAction("Jump", throwIfNotFound: true);
         m_Game_Dash = m_Game.FindAction("Dash", throwIfNotFound: true);
         m_Game_Look = m_Game.FindAction("Look", throwIfNotFound: true);
+        m_Game_WallRun = m_Game.FindAction("WallRun", throwIfNotFound: true);
     }
 
     ~@GameInputs()
@@ -278,6 +299,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_Jump;
     private readonly InputAction m_Game_Dash;
     private readonly InputAction m_Game_Look;
+    private readonly InputAction m_Game_WallRun;
     public struct GameActions
     {
         private @GameInputs m_Wrapper;
@@ -286,6 +308,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Game_Jump;
         public InputAction @Dash => m_Wrapper.m_Game_Dash;
         public InputAction @Look => m_Wrapper.m_Game_Look;
+        public InputAction @WallRun => m_Wrapper.m_Game_WallRun;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -307,6 +330,9 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Look.started += instance.OnLook;
             @Look.performed += instance.OnLook;
             @Look.canceled += instance.OnLook;
+            @WallRun.started += instance.OnWallRun;
+            @WallRun.performed += instance.OnWallRun;
+            @WallRun.canceled += instance.OnWallRun;
         }
 
         private void UnregisterCallbacks(IGameActions instance)
@@ -323,6 +349,9 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Look.started -= instance.OnLook;
             @Look.performed -= instance.OnLook;
             @Look.canceled -= instance.OnLook;
+            @WallRun.started -= instance.OnWallRun;
+            @WallRun.performed -= instance.OnWallRun;
+            @WallRun.canceled -= instance.OnWallRun;
         }
 
         public void RemoveCallbacks(IGameActions instance)
@@ -346,5 +375,6 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+        void OnWallRun(InputAction.CallbackContext context);
     }
 }

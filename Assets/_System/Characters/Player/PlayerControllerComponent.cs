@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,11 +14,14 @@ public class PlayerControllerComponent : MonoBehaviour
     private PlayerMovementComponent _movement = null;
     private PlayerJumpComponent _jump = null;
     private PlayerDashComponent _dash = null;
+    private WallRunComponent _wallRun = null;
 
     private Vector3 _movementDirection = Vector3.zero;
     private Vector3 _previousMovementDirection;
 
     private Vector2 _cameraLookInput;
+
+    private bool _isHoldingWallRunInput = false;
 
     #endregion
 
@@ -36,6 +38,9 @@ public class PlayerControllerComponent : MonoBehaviour
 
         if (!TryGetComponent<PlayerDashComponent>(out _dash))
             Debug.LogError($"{nameof(PlayerDashComponent)} component not found", this);
+
+        if (!TryGetComponent<WallRunComponent>(out _wallRun))
+            Debug.LogError($"{nameof(WallRunComponent)} component not found", this);
 
         if (FindFirstObjectByType<PlayerCameraComponent>() == null)
             Debug.LogError($"{nameof(PlayerCameraComponent)} component not found", this);
@@ -63,16 +68,19 @@ public class PlayerControllerComponent : MonoBehaviour
     {
         float delta = Time.fixedDeltaTime;
         UpdateMovement(delta);
+
+        if (_isHoldingWallRunInput)
+            PerfomWallRun();
     }
 
     private void LateUpdate()
     {
-
         float delta = Time.deltaTime;
         UpdateCameraLook(delta);
     }
 
     #endregion
+
 
     #region Private API
 
@@ -87,6 +95,9 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _gameInputs.Game.Look.performed += HandleLookInput;
         _gameInputs.Game.Look.canceled += HandleLookInput;
+
+        _gameInputs.Game.WallRun.performed += HandleWallRunInput;
+        _gameInputs.Game.WallRun.canceled += HandleWallRunInput;
     }
 
     private void UnBindInputs()
@@ -100,7 +111,11 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _gameInputs.Game.Look.performed -= HandleLookInput;
         _gameInputs.Game.Look.canceled -= HandleLookInput;
+
+        _gameInputs.Game.WallRun.performed -= HandleWallRunInput;
+        _gameInputs.Game.WallRun.canceled -= HandleWallRunInput;
     }
+
     private void UpdateMovement(float delta)
     {
         if (_movementDirection == Vector3.zero)
@@ -136,11 +151,6 @@ public class PlayerControllerComponent : MonoBehaviour
         _jump.Jump();
     }
 
-    private void HandleSprintInput(InputAction.CallbackContext context)
-    {
-        Debug.Log("Sprint");
-    }
-
     private void HandleDashInput(InputAction.CallbackContext context)
     {
         if (!_dash.Settings.AllowDashWhileStanding && _movementDirection == Vector3.zero)
@@ -159,6 +169,25 @@ public class PlayerControllerComponent : MonoBehaviour
 
         _camera.Look(_cameraLookInput, delta);
     }
+
+    private void HandleWallRunInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            _isHoldingWallRunInput = true;
+        }
+        else if (context.canceled)
+        {
+            _isHoldingWallRunInput = false;
+            _wallRun.StopWallRun();
+        }
+    }
+
+    private void PerfomWallRun()
+    {
+        _wallRun.WallRun();
+    }
+
 
     #endregion
 }

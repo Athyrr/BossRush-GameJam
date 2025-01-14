@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 25
   _maxSpeed: 50
-  _airControl: 0.7
+  _airControl: 0.9
   _fallingSpeedOnWall: 1
   _collisionLayers:
     serializedVersion: 2

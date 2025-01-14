@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 550bd1d03474f21418fd4d39472f95d6, type: 3}
   m_Name: PlayerMovementSettings
   m_EditorClassIdentifier: 
-  _speed: 30
+  _speed: 25
   _maxSpeed: 50
   _airControl: 0.7
+  _fallingSpeedOnWall: 1
   _collisionLayers:
     serializedVersion: 2
     m_Bits: 192

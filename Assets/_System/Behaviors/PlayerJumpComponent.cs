@@ -61,10 +61,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     public bool Jump()
     {
-        Debug.Log("Jump");
-        Debug.Log("Y Velocity" + _rigidbody.linearVelocity.y);
-
-        if (!_player.IsGrounded && _coyoteTimeCounter <= 0f /* -0.1 <_rigidbody.linearVelocity.y &&  _rigidbody.linearVelocity.y < 0.1*/)
+        if (!_player.IsGrounded && _coyoteTimeCounter <= 0f)
             return false;
 
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);

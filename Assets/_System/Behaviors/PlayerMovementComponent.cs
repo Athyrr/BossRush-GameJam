@@ -49,7 +49,6 @@ public class PlayerMovementComponent : MonoBehaviour
         _halfSize = GetComponent<Collider>().bounds.extents.z;
 
         Init();
-
     }
 
     private void Init()
@@ -87,10 +86,6 @@ public class PlayerMovementComponent : MonoBehaviour
 
         if (DetectCollisions(direction, out RaycastHit hit))
         {
-            Debug.LogWarning("On WAll");
-            Debug.LogWarning("Velocity lin" + _rigidbody.linearVelocity);
-            Debug.LogWarning("Grounded" + _player.IsGrounded);
-
             _rigidbody.position = hit.point - direction * _halfSize;
 
 

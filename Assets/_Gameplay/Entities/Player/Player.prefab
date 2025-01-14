@@ -224,11 +224,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396cb11d311decd4b860b16963b3b9c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wallRunForce: 50
+  _wallRunForce: 35
   _wallRunDuration: 2
   _wallDetectionRange: 2
   _wallRunnableLayer:
     serializedVersion: 2
     m_Bits: 64
-  _canWallRunColor: {r: 1, g: 1, b: 1, a: 1}
-  _cannotWallRunColor: {r: 1, g: 1, b: 1, a: 1}
+  _canWallRunColor: {r: 0.7264151, g: 0.034227416, b: 0, a: 1}
+  _cannotWallRunColor: {r: 1, g: 0.9070784, b: 0, a: 1}

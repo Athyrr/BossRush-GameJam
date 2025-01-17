@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
 
 public class WallRunComponent : MonoBehaviour
 {
@@ -57,7 +58,10 @@ public class WallRunComponent : MonoBehaviour
         if (_inputPressed)
         {
             if (!TryStartWallRun(out Vector3 wallDir))
+            {
+                StopWallRun();
                 return;
+            }
 
             transform.forward = wallDir;
 
@@ -66,6 +70,7 @@ public class WallRunComponent : MonoBehaviour
             MaintainHeight();
 
             Debug.Log("Wall Run");
+
 
             if (_wallRunTimer >= _wallRunDuration)
                 StopWallRun();
@@ -96,8 +101,6 @@ public class WallRunComponent : MonoBehaviour
     private bool TryStartWallRun(out Vector3 wallDirection)
     {
         wallDirection = Vector3.zero;
-        if (_isWallRunning)
-            return true;
 
         if (CanWallRun(out Vector3 wallNormal))
         {

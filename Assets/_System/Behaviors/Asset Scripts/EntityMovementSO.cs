@@ -9,6 +9,12 @@ public class EntityMovementSO : ScriptableObject
 
     [SerializeField]
     private float _maxSpeed = 0;
+    
+    [SerializeField]
+    private float _wallSlideSpeed = 0;
+
+    [SerializeField]
+    private float _rotationSmoothness = 0;
 
 
     [Header("Control")]
@@ -19,34 +25,64 @@ public class EntityMovementSO : ScriptableObject
     [SerializeField]
     [Tooltip("Set to '1' means let the gravity moving the entity down.")]
     [Min(1.0f)]
-    private float _fallingSpeedOnWall = 1f;
+    private float _fallingSpeedOnObstacle = 1f;
+
+    [SerializeField]
+    private float _wallSnapForce = 1f;
+
+    //[Header("Slope")]
+    //[SerializeField]
+    //[Tooltip("The max angle to considere that the player is on slope.")]
+    //private float _maxSlopeAngle = 0f;
+
+    //[SerializeField]
+    //private float _slideSpeed = 0f;
 
 
     [Header("Detection")]
     [SerializeField]
     [Tooltip("The layer mask with which the entity will collide.")]
-    private LayerMask _collisionLayers = ~0;
+    private LayerMask _obstacleLayer = ~0;
+    [SerializeField]
+    [Tooltip("The layer mask of elements on which the entity can walk.")]
+    private LayerMask _wallkableLayer = ~0;
+
+    [SerializeField]
+    private float _obstaclesDetectionRange = 0.2f;
+
+    [SerializeField]
+    private float _walkableDetectionRange = 0.2f;
 
 
     [Header("Debug")]
     [SerializeField]
-    [Tooltip("Movement direction detection gizmo.")]
-    private float _detectionRange = 0.2f;
+    private Color _movementDirectionColor = Color.yellow;
 
     [SerializeField]
-    [Tooltip("Movement direction detection gizmo.")]
-    private Color _debugColor = Color.yellow;
+    private Color _walkableDetectionColor = Color.cyan;
+
+    [SerializeField]
+    private Color _obstacleDetectionColor = Color.green;
 
 
     public float Speed => _speed;
     public float MaxSpeed => _maxSpeed;
+    public float WallSlideSpeed => _wallSlideSpeed;
+    public float RotationSmoothness => _rotationSmoothness;
 
     public float AirControl => Mathf.Clamp01(_airControl);
-    public float FallingSpeedOnWall => _fallingSpeedOnWall;
+    public float FallingSpeedOnObstacles => _fallingSpeedOnObstacle;
+    public float WallSnapForce => _wallSnapForce;
 
-    public LayerMask WallLayer => _collisionLayers;
-    public float DetectionRange => _detectionRange;
+    public LayerMask WalkableLayer => _wallkableLayer;
+    public LayerMask ObstacleLayer => _obstacleLayer;
+    public float ObstacleDetectionRange => _obstaclesDetectionRange;
+    public float WalkableDetectionRange => _walkableDetectionRange;
 
-    public Color DebugColor => _debugColor;
+    public Color MovementDirectionColor => _movementDirectionColor;
+    public Color WalkableDetectionColor => _walkableDetectionColor;
+    public Color ObstacleDetectionColor => _obstacleDetectionColor;
+
+
 
 }

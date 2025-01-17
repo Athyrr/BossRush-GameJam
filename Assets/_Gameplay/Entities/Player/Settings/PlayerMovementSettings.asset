@@ -15,7 +15,9 @@ MonoBehaviour:
   _speed: 25
   _maxSpeed: 50
   _airControl: 0.9
-  _fallingSpeedOnWall: 1
+  _fallingSpeedOnWall: 10
+  _maxSlopeAngle: 80
+  _slideSpeed: 50
   _collisionLayers:
     serializedVersion: 2
     m_Bits: 192

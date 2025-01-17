@@ -17,9 +17,8 @@ public class PlayerControllerComponent : MonoBehaviour
     private WallRunComponent _wallRun = null;
 
     private Vector3 _movementDirection = Vector3.zero;
-    private Vector3 _previousMovementDirection;
-
-    private Vector2 _cameraLookInput;
+    private Vector3 _previousMovementDirection = Vector3.zero;
+    private Vector2 _cameraLookInput = Vector2.zero;
 
     private bool _isHoldingWallRunInput = false;
 
@@ -118,8 +117,8 @@ public class PlayerControllerComponent : MonoBehaviour
 
     private void UpdateMovement(float delta)
     {
-        if (_movementDirection == Vector3.zero)
-            return;
+        //if (_movementDirection == Vector3.zero)
+        //    return;
 
         Vector3 cameraForward = _camera.transform.forward;
         Vector3 cameraRight = _camera.transform.right;

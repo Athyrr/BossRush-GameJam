@@ -10,12 +10,16 @@ public class PlayerMovementComponent : MonoBehaviour
     [SerializeField]
     private EntityMovementSO _settings = null;
 
-
     private PlayerComponent _player = null;
     private Rigidbody _rigidbody = null;
     private float _speed = 1.0f;
     private Vector3 _previousMovement;
-    private float _halfSize = 0;
+    private float _halfWidth = 0;
+    private float _halfHeight = 0;
+    private Vector3 _currentSurfaceNormal = Vector3.zero;
+    private Quaternion _previousRotation;
+    private bool _isGrounded = false;
+    private bool _isOnWalkable;
 
     private UnityEvent<MovementInfo> _onMoveStart = new();
     private UnityEvent<MovementInfo> _onMoveUpdate = new();
@@ -46,9 +50,31 @@ public class PlayerMovementComponent : MonoBehaviour
             return;
         }
 
-        _halfSize = GetComponent<Collider>().bounds.extents.z;
+        _halfWidth = GetComponent<Collider>().bounds.extents.z;
+        _halfHeight = GetComponent<Collider>().bounds.extents.y;
+
 
         Init();
+    }
+
+    private void FixedUpdate()
+    {
+        DetectAndAlignToSurface();
+
+        if (DetectObstaclesAbove(out RaycastHit hit))
+        {
+            Vector3 obstaclePosition = hit.point - Vector3.up * _halfHeight;
+            _rigidbody.position = new Vector3(_rigidbody.position.x, obstaclePosition.y, _rigidbody.position.z);
+        }
+
+        if (_rigidbody.useGravity == true)
+        {
+            Debug.Log("Gravity: ON");
+        }
+        else
+        {
+            Debug.Log("Gravity: OFF");
+        }
     }
 
     private void Init()
@@ -67,10 +93,17 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         _speed = Mathf.Clamp(_settings.Speed, 0, _settings.MaxSpeed);
 
-        if ((direction == Vector3.zero && _player.IsGrounded) || _speed <= 0)
+        if ((direction == Vector3.zero && _isOnWalkable) || _speed <= 0)
         {
+            _rigidbody.useGravity = true;
+
+            if (!_isGrounded)
+                ApplyWallSlide();
+
             if (_previousMovement != Vector3.zero)
             {
+                //_rigidbody.position = _previousPosition;
+                _rigidbody.rotation = _previousRotation;
                 _onMoveEnd.Invoke(new MovementInfo(this, _speed, direction, transform.position));
                 _previousMovement = Vector3.zero;
             }
@@ -79,21 +112,22 @@ public class PlayerMovementComponent : MonoBehaviour
 
         direction.Normalize();
 
-        float control = _player.IsGrounded ? 1 : _settings.AirControl;
+        float control = _isOnWalkable ? 1 : _settings.AirControl;
 
-        Vector3 previousPosition = transform.position;
-        Vector3 velocity = direction * _settings.Speed/* _speed */* control * delta;
+        Vector3 velocity = direction * _settings.Speed * control * delta;
+        velocity = Vector3.ProjectOnPlane(velocity, _currentSurfaceNormal);
 
-        if (DetectCollisions(direction, out RaycastHit hit))
+        Debug.DrawLine(transform.position, velocity * 10, Color.green);
+
+        if (_isOnWalkable && !_isGrounded)
         {
-            _rigidbody.position = hit.point - direction * _halfSize;
+            _rigidbody.AddForce(-_currentSurfaceNormal * _settings.WallSnapForce, ForceMode.Force);
+        }
 
-
-            Vector3 vel = _player.IsGrounded ?
-                new Vector3(_rigidbody.linearVelocity.x, _rigidbody.linearVelocity.y, _rigidbody.linearVelocity.z)
-                : new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnWall, _rigidbody.linearVelocity.z);
-
-            _rigidbody.linearVelocity = vel;
+        if (DetectObstaclesFwd(direction, out RaycastHit hit))
+        {
+            _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnObstacles, _rigidbody.linearVelocity.z); ;
+            _rigidbody.position = hit.point - direction * _halfWidth;
 
             if (_previousMovement != Vector3.zero)
             {
@@ -107,9 +141,10 @@ public class PlayerMovementComponent : MonoBehaviour
             _onMoveUpdate.Invoke(new MovementInfo(this, _speed, direction, transform.position));
         }
 
+        _previousRotation = _rigidbody.rotation;
 
         if (_previousMovement == Vector3.zero)
-            _onMoveStart.Invoke(new MovementInfo(this, _speed, direction, previousPosition));
+            _onMoveStart.Invoke(new MovementInfo(this, _speed, direction, transform.position));
 
         return true;
     }
@@ -119,12 +154,57 @@ public class PlayerMovementComponent : MonoBehaviour
 
     #region Private API
 
-    private bool DetectCollisions(Vector3 direction, out RaycastHit hit)
+    private bool DetectObstaclesFwd(Vector3 direction, out RaycastHit hit)
     {
-        if (Physics.Raycast(_rigidbody.position, direction, out hit, _halfSize + _settings.DetectionRange, _settings.WallLayer))
-            return true;
+        return Physics.Raycast(_rigidbody.position, direction, out hit, _halfWidth + _settings.ObstacleDetectionRange, _settings.ObstacleLayer);
+    }
 
-        return false;
+    private bool DetectObstaclesAbove(out RaycastHit hit)
+    {
+        return Physics.Raycast(transform.position, Vector3.up, out hit, _halfHeight + _settings.ObstacleDetectionRange, _settings.ObstacleLayer);
+    }
+
+    private void DetectAndAlignToSurface()
+    {
+        Vector3 rayOrigin = transform.position - Vector3.up * _halfHeight;
+        Vector3 direction = Vector3.down;
+        float distance = _halfHeight + _settings.WalkableDetectionRange;
+
+        if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, distance, _settings.WalkableLayer))
+        {
+            _isOnWalkable = true;
+            _currentSurfaceNormal = hit.normal;
+
+            if (Vector3.Dot(Vector3.up, _currentSurfaceNormal) == 1)
+            {
+                _isGrounded = true;
+                _rigidbody.useGravity = true;
+            }
+            else
+            {
+                _isGrounded = false;
+                _rigidbody.useGravity = false;
+            }
+
+            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, _currentSurfaceNormal) * transform.rotation;
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, _settings.RotationSmoothness * Time.deltaTime);
+        }
+        else
+        {
+            _isOnWalkable = false;
+            _isGrounded = false;
+            _rigidbody.useGravity = true;
+            _currentSurfaceNormal = Vector3.up;
+        }
+    }
+
+    private void ApplyWallSlide()
+    {
+        Vector3 slideDirection = Vector3.ProjectOnPlane(_rigidbody.linearVelocity, _currentSurfaceNormal).normalized;
+
+        _rigidbody.AddForce(slideDirection * _settings.WallSlideSpeed, ForceMode.Force);
+
+        Debug.Log("Wall Slide Active");
     }
 
     #endregion
@@ -136,10 +216,28 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         if (_rigidbody != null)
         {
-            Gizmos.color = _settings.DebugColor;
-            Gizmos.DrawWireSphere(_rigidbody.position, _halfSize + _settings.DetectionRange);
+            //Detection fwd
+            Gizmos.color = _settings.ObstacleDetectionColor;
+            Gizmos.DrawRay(_rigidbody.position, transform.forward * (_halfWidth + _settings.ObstacleDetectionRange));
+
+            // Detection below
+            Gizmos.color = _settings.WalkableDetectionColor;
+            Vector3 rayOrigin = transform.position - Vector3.up * _halfHeight;
+            Gizmos.DrawRay(rayOrigin, Vector3.down * (_halfHeight + _settings.WalkableDetectionRange));
+
+
+            //Detection above
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position, Vector3.up * (_halfHeight + _settings.ObstacleDetectionRange));
+
+            //Surface normal
+            Gizmos.color = Color.blue;
+            Vector3 startPoint = transform.position - Vector3.up * _halfHeight;
+            Gizmos.DrawLine(startPoint, startPoint + _currentSurfaceNormal * 5f);
         }
     }
 
     #endregion
 }
+
+

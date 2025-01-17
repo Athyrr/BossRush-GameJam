@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MT_EnviroTest
+  m_Name: MT_Edges
   m_Shader: {fileID: 4800000, guid: 6e4ae4064600d784cac1e41a9e6f2e59, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -243,8 +243,8 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.8962264, g: 0.5250864, b: 0.30015132, a: 1}
-    - _Color: {r: 0.8962264, g: 0.5250864, b: 0.3001513, a: 1}
+    - _BaseColor: {r: 0.07614557, g: 0.03773585, b: 0.1509434, a: 1}
+    - _Color: {r: 0.07614554, g: 0.03773585, b: 0.15094337, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

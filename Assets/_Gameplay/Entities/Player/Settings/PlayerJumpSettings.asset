@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 520c6cf69140de742a76f7371384cdf4, type: 3}
   m_Name: PlayerJumpSettings
   m_EditorClassIdentifier: 
-  _jumpForce: 45
-  _gravityMultiplier: 100
+  _jumpForce: 10
+  _gravityMultiplier: 200
   _coyoteTime: 0.2
-  _maxFallingSpeed: 50
+  _maxFallingSpeed: 60
+  _jumpableLayers:
+    serializedVersion: 2
+    m_Bits: 320
+  _jumpableDetectionRange: 0.2

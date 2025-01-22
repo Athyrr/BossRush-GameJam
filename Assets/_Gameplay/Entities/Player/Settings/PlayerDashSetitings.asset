@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0f1484fde78bbf4d8a69716f9184902, type: 3}
   m_Name: PlayerDashSetitings
   m_EditorClassIdentifier: 
-  _dashForce: 30
+  _dashForce: 50
   _coolddown: 1
   _duration: 0.3
   _dashMomentum:
@@ -59,9 +59,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   _allowDashWhileStanding: 1
   _allowDashInAir: 0
-  _wallLayer:
+  _obstacleslLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   _enemiesLayer:
     serializedVersion: 2
     m_Bits: 128

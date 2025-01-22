@@ -86,7 +86,7 @@ public class PlayerDashComponent : MonoBehaviour
             if (ratio >= 1)
             {
                 _isDashPerfomed = false;
-                //invoke end dash
+                //@todo invoke end dash
             }
         }
 
@@ -108,7 +108,7 @@ public class PlayerDashComponent : MonoBehaviour
         _dashMomentum = _dashSettings.Momentum;
         _allowDashInAir = _dashSettings.AllowDashInAir;
 
-        _wallLayer = _dashSettings.WallLayer;
+        _wallLayer = _dashSettings.ObstacleslLayer;
         _enemyLayer = _dashSettings.EnemyLayer;
     }
 

@@ -19,7 +19,6 @@ public class PlayerJumpComponent : MonoBehaviour
 
     #endregion
 
-
     #region Lifecycle
 
     private void Awake()
@@ -54,13 +53,12 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //HandleFalling();
+        HandleFalling();
     }
 
     private void Init() { }
 
     #endregion
-
 
     #region Public API
 
@@ -68,6 +66,8 @@ public class PlayerJumpComponent : MonoBehaviour
     {
         if (!CanJump() && _coyoteTimeCounter <= 0f)
             return false;
+
+        _rigidbody.isKinematic = false;
 
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
         _rigidbody.AddForce(Vector3.up * _settings.JumpForce, ForceMode.Impulse);
@@ -79,18 +79,19 @@ public class PlayerJumpComponent : MonoBehaviour
 
     #endregion
 
-
     #region Private API
 
     private bool CanJump()
     {
-        return Physics.Raycast(_rigidbody.position, Vector3.down, _halfHeight + _settings.JumpableDetectionRange, _settings.JumpableLayer);
+        return Physics.Raycast(_rigidbody.position, -transform.up, _halfHeight + _settings.JumpableDetectionRange, _settings.JumpableLayer);
     }
 
     private void HandleFalling()
     {
         if (CanJump())
             return;
+
+        _rigidbody.isKinematic = false;
 
         _rigidbody.AddForce(Vector3.down * _settings.GravityMultiplier, ForceMode.Acceleration);
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Mathf.Max(_rigidbody.linearVelocity.y, -_settings.MaxFallingSpeed), _rigidbody.linearVelocity.z);

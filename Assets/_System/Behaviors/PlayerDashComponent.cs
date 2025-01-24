@@ -140,7 +140,7 @@ public class PlayerDashComponent : MonoBehaviour
 
         if (DetectCollisions(direction, out RaycastHit hit))
         {
-            _dashFinalPos = hit.point - direction * 0.2f;
+            _dashFinalPos = hit.point - direction * 0.25f;
         }
 
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);

@@ -15,18 +15,20 @@ MonoBehaviour:
   _speed: 30
   _maxSpeed: 15
   _wallSlideSpeed: 15
-  _rotationSmoothness: 357.7
+  _rotationSmoothness: 30
   _airControl: 0.9
   _fallingSpeedOnObstacle: 2
-  _wallSnapForce: 500
+  _wallSnapForce: 20
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 320
   _wallkableLayer:
     serializedVersion: 2
     m_Bits: 256
-  _obstaclesDetectionRange: 0.5
+  _obstaclesDetectionRange: 0.2
   _walkableDetectionRange: 0.2
+  _wallDetectionOffset: 0.7
+  _wallNormalThreshold: 0.75
   _movementDirectionColor: {r: 0.11877227, g: 1, b: 0, a: 1}
   _walkableDetectionColor: {r: 1, g: 0.3058511, b: 0, a: 1}
-  _obstacleDetectionColor: {r: 0, g: 0.4056604, b: 0.0023670513, a: 1}
+  _obstacleDetectionColor: {r: 0.57939434, g: 0, b: 1, a: 1}

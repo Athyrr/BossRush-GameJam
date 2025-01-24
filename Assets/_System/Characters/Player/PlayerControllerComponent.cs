@@ -133,12 +133,8 @@ public class PlayerControllerComponent : MonoBehaviour
         Vector3 movement3D = cameraForward * _movementDirection.y + cameraRight * _movementDirection.x;
         movement3D.Normalize();
 
-
-        if (movement3D != Vector3.zero)
-        {
-        }
+        ////if (movement3D != Vector3.zero)
         _movement.Move(movement3D, delta);
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movement3D), delta * 10f);
 
         _previousMovementDirection = movement3D;
     }

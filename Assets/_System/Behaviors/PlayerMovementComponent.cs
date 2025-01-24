@@ -1,10 +1,19 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovementComponent : MonoBehaviour
 {
+
+    #region Nested
+
+    public enum WalkMode
+    {
+        Gravity,
+        Kinematic
+    }
+    #endregion
+
     #region Fields
 
     [SerializeField]
@@ -16,14 +25,19 @@ public class PlayerMovementComponent : MonoBehaviour
     private Vector3 _previousMovement;
     private float _halfWidth = 0;
     private float _halfHeight = 0;
-    private Vector3 _currentSurfaceNormal = Vector3.zero;
+    private Vector3 _surfaceNormal = Vector3.zero;
     private Quaternion _previousRotation;
     private bool _isGrounded = false;
+
     private bool _isOnWalkable;
+    private WalkMode _walkMode = WalkMode.Gravity;
+
+    private bool _isTouchingWall = false;
 
     private UnityEvent<MovementInfo> _onMoveStart = new();
     private UnityEvent<MovementInfo> _onMoveUpdate = new();
     private UnityEvent<MovementInfo> _onMoveEnd = new();
+    private Vector3 _movementDirection;
 
     #endregion
 
@@ -35,7 +49,7 @@ public class PlayerMovementComponent : MonoBehaviour
         if (_rigidbody == null)
             _rigidbody = GetComponent<Rigidbody>();
 
-        _rigidbody.isKinematic = true;
+        _rigidbody.isKinematic = false;
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
@@ -53,8 +67,9 @@ public class PlayerMovementComponent : MonoBehaviour
             return;
         }
 
-        _halfWidth = GetComponent<Collider>().bounds.extents.z;
-        _halfHeight = GetComponent<Collider>().bounds.extents.y;
+        var collider = GetComponent<Collider>();
+        _halfWidth = collider.bounds.extents.x;
+        _halfHeight = collider.bounds.extents.y;
 
 
         Init();
@@ -62,24 +77,18 @@ public class PlayerMovementComponent : MonoBehaviour
 
     private void FixedUpdate()
     {
-        DetectAndAlignToSurface();
+        DetectSurface();
+        //AlignToSurface(_surfaceNormal);
 
         //if (DetectObstaclesAbove(out RaycastHit hit))
         //{
-        //    Vector3 obstaclePosition = hit.point - Vector3.up * _halfHeight;
+        //    MaintainPositionOnSurface(hit);
+        //    Vector3 obstaclePosition = hit.point - transform.up * _halfHeight;
         //    _rigidbody.position = new Vector3(_rigidbody.position.x, obstaclePosition.y, _rigidbody.position.z);
         //    _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnObstacles, _rigidbody.linearVelocity.z);
         //}
 
-        //if (_rigidbody.useGravity == true)
-        //{
-        //    Debug.Log("Gravity: ON");
-        //}
-        //else
-        //{
-        //    Debug.Log("Gravity: OFF");
-        //}
-
+        Debug.Log("Move mode: " + _walkMode.ToString());
     }
 
     private void Init()
@@ -89,7 +98,6 @@ public class PlayerMovementComponent : MonoBehaviour
 
     #endregion
 
-
     #region Public API
 
     public UnityEvent<MovementInfo> OnMoveStart => _onMoveStart;
@@ -97,12 +105,26 @@ public class PlayerMovementComponent : MonoBehaviour
     public bool Move(Vector3 direction, float delta)
     {
 
-        if ((direction == Vector3.zero && _isOnWalkable))
+        if ((direction == Vector3.zero /*&&  _isGrounded*/))
         {
             //_rigidbody.useGravity = true;
 
             //if (!_isGrounded)
             //    SlideOnWall();
+
+            // On ground
+
+            float verticalVelocity = _rigidbody.linearVelocity.y;
+
+            Vector3 horizontalVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
+            horizontalVelocity = Vector3.Lerp(horizontalVelocity, Vector3.zero, _settings.DecelerationFactor * delta); // 100 = Décélération
+
+            _rigidbody.linearVelocity = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
+            //Debug.LogWarning("direction Input:" + direction);
+
+
+            //On Wall
+            //Set gravtity movement 
 
             if (_previousMovement != Vector3.zero)
             {
@@ -113,120 +135,181 @@ public class PlayerMovementComponent : MonoBehaviour
             return false;
         }
 
-        direction.Normalize();
-
-        Debug.Log("Direction input" + direction);
-
-        float control = /*_isOnWalkable ? 1 : _settings.AirControl;*/ 1;
         _speed = Mathf.Clamp(_settings.Speed, 0, _settings.MaxSpeed);
 
-        Vector3 velocity = direction * _settings.Speed * control * delta;
-        velocity = Vector3.ProjectOnPlane(velocity, _currentSurfaceNormal);
+        direction.Normalize();
+        _movementDirection = direction;
 
-        var targetPos = _rigidbody.position + velocity;
-        _rigidbody.MovePosition(_rigidbody.position + velocity);
+        _rigidbody.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), delta * _settings.RotationSpeed);
 
-        Debug.Log("Move target position" + velocity);
+        switch (_walkMode)
+        {
+            case WalkMode.Gravity:
+                MoveGravity(direction, delta, out Vector3 velocity);
+                break;
 
-        //if (_isOnWalkable && !_isGrounded)
-        //{
-        //    if (_rigidbody.linearVelocity.magnitude > _settings.MaxSpeed)
-        //    {
-        //        _rigidbody.linearVelocity = _rigidbody.linearVelocity.normalized * _settings.MaxSpeed;
-        //    }
-
-        //    Vector3 wallParallelDirection = Vector3.ProjectOnPlane(velocity, _currentSurfaceNormal);
-
-        //    if (_rigidbody.linearVelocity.y > 00.2f)
-        //    {
-        //        _rigidbody.AddForce(wallParallelDirection * 10, ForceMode.Force);
-
-        //    }
-
-        //    //Vector3 antiGravityForce = -Physics.gravity * _rigidbody.mass;
-        //    //_rigidbody.AddForce(antiGravityForce, ForceMode.Acceleration);
-
-        //    //_rigidbody.linearVelocity = Vector3.ProjectOnPlane(_rigidbody.linearVelocity, _currentSurfaceNormal);
-        //    Debug.Log("OnWalll");
-        //}
-
+            case WalkMode.Kinematic:
+                WallRun(direction, delta);
+                break;
+        }
 
         //if (DetectObstaclesFwd(direction, out RaycastHit hit))
         //{
-        //    _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnObstacles, _rigidbody.linearVelocity.z);
-        //    _rigidbody.position = hit.point - direction * _halfWidth;
-
-        //    if (_previousMovement != Vector3.zero)
+        //    //ClampPositionToSurface(hit);
+        //    if (direction == Vector3.zero)
         //    {
-        //        _onMoveEnd.Invoke(new MovementInfo(this, _speed, Vector3.zero, transform.position));
-        //        _previousMovement = Vector3.zero;
+        //        _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Physics.gravity.y * _settings.FallingSpeedOnObstacles, _rigidbody.linearVelocity.z);
+        //        _rigidbody.position = hit.point - direction * _halfWidth;
         //    }
         //}
-        //else
-        //{
-        //    _rigidbody.position += velocity;
-        //    _onMoveUpdate.Invoke(new MovementInfo(this, _speed, direction, transform.position));
-        //}
+
+        if (_previousMovement != Vector3.zero)
+        {
+            _onMoveEnd.Invoke(new MovementInfo(this, _speed, Vector3.zero, transform.position));
+            _previousMovement = Vector3.zero;
+        }
+        else
+        {
+            //_rigidbody.position += velocity;
+            _onMoveUpdate.Invoke(new MovementInfo(this, _speed, direction, transform.position));
+        }
 
         //Debug.DrawLine(_rigidbody.position, _rigidbody.position + targetPos * 10, Color.red);
 
-        //_previousRotation = _rigidbody.rotation;
+        _previousRotation = _rigidbody.rotation;
 
-        //if (_previousMovement == Vector3.zero)
-        //    _onMoveStart.Invoke(new MovementInfo(this, _speed, direction, transform.position));
+        if (_previousMovement == Vector3.zero)
+            _onMoveStart.Invoke(new MovementInfo(this, _speed, direction, transform.position));
 
-        Debug.Log("Is kinematic " + _rigidbody.isKinematic);
+        //Debug.Log("Is kinematic " + _rigidbody.isKinematic);
 
         return true;
     }
 
     #endregion
 
-
     #region Private API
 
     private bool DetectObstaclesFwd(Vector3 direction, out RaycastHit hit)
     {
-        return Physics.Raycast(_rigidbody.position, direction, out hit, _halfWidth + _settings.ObstacleDetectionRange, _settings.ObstacleLayer);
+        return Physics.Raycast(_rigidbody.position, direction, out hit, _halfHeight + _settings.ObstacleDetectionRange, _settings.ObstacleLayer);
     }
 
     private bool DetectObstaclesAbove(out RaycastHit hit)
     {
-        return Physics.Raycast(transform.position, Vector3.up, out hit, _halfHeight + _settings.ObstacleDetectionRange, _settings.ObstacleLayer);
+        return Physics.Raycast(_rigidbody.position, Vector3.up, out hit, _halfHeight + 0.1f, _settings.ObstacleLayer);
     }
 
-    private void DetectAndAlignToSurface()
+    private void DetectSurface()
     {
-        Vector3 rayOrigin = transform.position - transform.up * (_halfHeight);
-        Vector3 direction = -transform.up;
-        float distance = _halfHeight + _settings.WalkableDetectionRange;
+        Vector3 feetPosition = _rigidbody.position - transform.up * (_halfHeight - 0.2f);
+        float radius = _settings.WalkableDetectionRange;
 
-        if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, distance, _settings.WalkableLayer))
+        Collider[] colliders = Physics.OverlapSphere(feetPosition, radius, _settings.WalkableLayer);
+
+        bool detectBelow = colliders.Length > 0;
+
+        foreach (Collider col in colliders)
+            Debug.Log("COlliders : " + col.name);
+
+        if (detectBelow)
         {
-            _isOnWalkable = true;
-            hit.normal.Normalize();
-            _currentSurfaceNormal = Vector3.Lerp(_currentSurfaceNormal, hit.normal, Time.deltaTime * /*_settings.NormalSmoothingFactor*/ 5);
-            //if (Vector3.Dot(Vector3.up, _currentSurfaceNormal) == 1)
-            //{
-            //    _isGrounded = true;
-            //    _rigidbody.useGravity = true;
-            //}
-            //else
-            //{
-            //    _isGrounded = false;
-            //    _rigidbody.useGravity = false;
-            //}
+            RaycastHit surfaceHit;
+            if (Physics.Raycast(feetPosition, -transform.up, out surfaceHit, _settings.WalkableDetectionRange, _settings.WalkableLayer))
+            {
+                _isOnWalkable = true;
+                _surfaceNormal = surfaceHit.normal;
 
-            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, _currentSurfaceNormal) * transform.rotation;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, _settings.RotationSmoothness * Time.deltaTime);
+                //MaintainPositionOnSurface(surfaceHit);
+                //AlignToSurface(surfaceHit.normal);
+
+                float dot = Vector3.Dot(surfaceHit.normal, Vector3.up);
+                if (dot >= _settings.WallNormalThreshold)
+                {
+                    //MaintainPositionOnSurface(surfaceHit);
+                    _isGrounded = true;
+                    _walkMode = WalkMode.Gravity;
+                }
+                else
+                {
+                    //MaintainPositionOnSurface(surfaceHit);
+                    _isGrounded = false;
+                    _isTouchingWall = true;
+                    _walkMode = WalkMode.Kinematic;
+                }
+            }
         }
         else
         {
-            //_isOnWalkable = false;
-            //_isGrounded = false;
-            //_rigidbody.useGravity = true;
-            _currentSurfaceNormal = Vector3.up;
+            _isGrounded = false;
+            _isTouchingWall = false;
+            _isOnWalkable = false;
+            _walkMode = WalkMode.Gravity;
         }
+
+        //// Wall Detection
+        //Vector3 startPoint = transform.position - transform.up * (_halfHeight * 0.5f) + transform.forward * _settings.ForwardDetectionOffset;
+        //Vector3 endPoint = transform.position + transform.up * (_halfHeight * 0.5f) + transform.forward * _settings.ForwardDetectionOffset;
+
+        //_isTouchingWall = Physics.CapsuleCast(
+        //    startPoint,
+        //    endPoint,
+        //    _halfWidth,
+        //    transform.forward,
+        //    out RaycastHit wallHit,
+        //    _settings.ObstacleDetectionRange,
+        //    _settings.WalkableLayer
+        //);
+
+
+        //if (_isTouchingWall)
+        //{
+        //    float dot = Vector3.Dot(wallHit.normal, Vector3.up);
+
+        //    if (dot < _settings.WallNormalThreshold && dot >= 0)
+        //    {
+        //        _walkMode = WalkMode.Kinematic;
+        //        _surfaceNormal = wallHit.normal;
+        //        //ClampPositionToSurface(wallHit);
+        //        //AlignToGround(wallHit);
+        //        _isOnWalkable = true;
+        //    }
+        //    else
+        //    {
+        //        _isTouchingWall = false;
+        //    }
+        //}
+
+        //if (!_isGrounded && !_isTouchingWall)
+        //{
+        //    _isOnWalkable = false;
+        //    _walkMode = WalkMode.Gravity;
+        //}
+
+        Debug.Log("Grounded: " + _isGrounded);
+        //Debug.Log("Touching Wall: " + _isTouchingWall);
+        //Debug.Log("On Walkable: " + _isOnWalkable);
+
+    }
+
+    private void MaintainPositionOnSurface(RaycastHit hit)
+    {
+        Vector3 offset = _rigidbody.position - hit.point;
+
+        Vector3 projectedOffset = Vector3.Project(offset, hit.normal);
+
+        if (projectedOffset.magnitude > 0.01f) 
+        {
+            Vector3 targetPosition = _rigidbody.position - projectedOffset;
+            _rigidbody.MovePosition(Vector3.Lerp(_rigidbody.position, targetPosition, Time.fixedDeltaTime * 10f));
+        }
+    }
+
+    private void AlignToSurface(Vector3 surfaceNormal)
+    {
+        //Quaternion targetRotation = Quaternion.LookRotation(Vector3.Cross(surfaceNormal, Vector3.up), surfaceNormal);
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, surfaceNormal) * transform.rotation;
+        _rigidbody.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, _settings.AlignementSpeed * Time.fixedDeltaTime));
     }
 
     private void SlideOnWall()
@@ -238,8 +321,39 @@ public class PlayerMovementComponent : MonoBehaviour
         //Debug.Log("Wall Slide Active");
     }
 
-    #endregion
+    private void MoveGravity(Vector3 direction, float delta, out Vector3 velocity)
+    {
+        //velocity = Vector3.zero;
+        //if (direction == Vector3.zero)
+        //    return;
 
+        float control = _isOnWalkable ? 1 : _settings.AirControl; ;
+
+        velocity = direction * _settings.Speed * control * _settings.AcceleratonFactor * delta;
+        velocity = Vector3.ProjectOnPlane(velocity, _surfaceNormal);
+
+        AlignToSurface(_surfaceNormal);
+
+        _rigidbody.linearVelocity += velocity;
+        var clamped = Vector3.ClampMagnitude(_rigidbody.linearVelocity, _settings.MaxSpeed);
+        _rigidbody.linearVelocity = new(clamped.x, _rigidbody.linearVelocity.y, clamped.z);
+
+    }
+
+    private void WallRun(Vector3 direction, float deltaTime)
+    {
+        Vector3 wallRunDirection = Vector3.ProjectOnPlane(direction, _surfaceNormal);
+        Vector3 wallRunVelocity = wallRunDirection * _settings.Speed * deltaTime;
+
+        _rigidbody.isKinematic = true;
+        _rigidbody.MovePosition(_rigidbody.position + wallRunVelocity);
+
+        AlignToSurface(_surfaceNormal);
+
+        Debug.DrawLine(transform.position, transform.position + wallRunDirection * 5f, Color.green);
+    }
+
+    #endregion
 
     #region Debug
 
@@ -247,24 +361,26 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         if (_rigidbody != null)
         {
-            //Detection fwd
+            Vector3 feetPosition = transform.position - transform.up * (_halfHeight - 0.1f);
+
+            // Ground
+            float radius = _settings.WalkableDetectionRange;
+
+            Gizmos.color = _isGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(feetPosition, radius);
+
+            // Wall
+            Vector3 startPoint = transform.position - transform.up * (_halfHeight * 0.5f) + transform.forward * _settings.ForwardDetectionOffset;
+            Vector3 endPoint = transform.position + transform.up * (_halfHeight * 0.5f) + transform.forward * _settings.ForwardDetectionOffset;
+
             Gizmos.color = _settings.ObstacleDetectionColor;
-            Gizmos.DrawRay(_rigidbody.position, transform.forward * (_halfWidth + _settings.ObstacleDetectionRange));
+            Gizmos.DrawWireSphere(startPoint, _halfWidth);
+            Gizmos.DrawWireSphere(endPoint, _halfWidth);
+            Gizmos.DrawLine(startPoint, endPoint);
 
-            // Detection below
-            Gizmos.color = _settings.WalkableDetectionColor;
-            Vector3 rayOrigin = transform.position - transform.up * _halfHeight;
-            Gizmos.DrawRay(rayOrigin, -transform.up * (_halfHeight + _settings.WalkableDetectionRange));
-
-
-            //Detection above
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(transform.position, Vector3.up * (_halfHeight + _settings.ObstacleDetectionRange));
-
-            //Surface normal
+            // Surface Normal
             Gizmos.color = Color.blue;
-            Vector3 startPoint = transform.position - Vector3.up * _halfHeight;
-            Gizmos.DrawLine(startPoint, startPoint + _currentSurfaceNormal * 5f);
+            Gizmos.DrawLine(transform.position, transform.position + _surfaceNormal * 2.0f);
         }
     }
 

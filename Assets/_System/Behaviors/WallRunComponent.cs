@@ -190,14 +190,14 @@ public class WallRunComponent : MonoBehaviour
 
     #region Debug
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = _canWallRunRight ? _canWallRunColor : _cannotWallRunColor;
-        Gizmos.DrawLine(transform.position + _halfWidth * transform.right, transform.position + transform.right * _wallDetectionRange);
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = _canWallRunRight ? _canWallRunColor : _cannotWallRunColor;
+    //    Gizmos.DrawLine(transform.position + _halfWidth * transform.right, transform.position + transform.right * _wallDetectionRange);
 
-        Gizmos.color = _canWallRunLeft ? _canWallRunColor : _cannotWallRunColor;
-        Gizmos.DrawLine(transform.position - _halfWidth * transform.right, transform.position - transform.right * _wallDetectionRange);
-    }
+    //    Gizmos.color = _canWallRunLeft ? _canWallRunColor : _cannotWallRunColor;
+    //    Gizmos.DrawLine(transform.position - _halfWidth * transform.right, transform.position - transform.right * _wallDetectionRange);
+    //}
 
     #endregion
 

@@ -61,7 +61,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     public bool Jump()
     {
-        if (!_player.IsGrounded && _coyoteTimeCounter <= 0f)
+      //  if (!_player.IsGrounded && _coyoteTimeCounter <= 0f)
             return false;
 
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
@@ -79,7 +79,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void HandleFalling()
     {
-        if (_player.IsGrounded)
+        //if (_player.IsGrounded)
             return;
 
         _rigidbody.AddForce(Vector3.down * _settings.GravityMultiplier, ForceMode.Acceleration);
@@ -88,9 +88,9 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void HandleCoyoteTime(float delta)
     {
-        if (_player.IsGrounded)
+        //if (_player.IsGrounded)
             _coyoteTimeCounter = _settings.CoyoteTime;
-        else
+       // else
             _coyoteTimeCounter -= delta;
     }
 

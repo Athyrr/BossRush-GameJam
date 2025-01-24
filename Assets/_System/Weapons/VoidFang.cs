@@ -9,35 +9,16 @@ public class VoidFang : WeaponComponent
     private float _durability;
     
     [SerializeField]private float speedMultiplier;
+    [SerializeField]private float dashDistanceMultiplier;
     
     private void Start()
     {
        Init();
     }
 
-    protected override void Shoot()
+    public override void Shoot(Vector3 targetPositions)
     {
         onShootStart.Invoke();
         _ammo--;
-    }
-
-    protected override void Reload()
-    {
-        //
-    }
-
-    protected override void Init()
-    {
-        _damage = Damage;
-        _ammo = Ammo;
-        _durability = Durability;
-    }
-
-    protected override void CheckAmmo()
-    {
-        if (_ammo <= 0)
-        {
-            //Make disappear weapon
-        }
     }
 }

@@ -17,8 +17,9 @@ GameObject:
   - component: {fileID: 4129684038643033375}
   - component: {fileID: 7296452979934260358}
   - component: {fileID: 8103680496180993717}
+  - component: {fileID: 1590392222473891176}
   - component: {fileID: 2512044136680325649}
-  - component: {fileID: 8246980565032525458}
+  - component: {fileID: 3117023626850361953}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -185,6 +186,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _settings: {fileID: 11400000, guid: 1ad7c05d2ddfdbe4c8e2fdc307aae5f9, type: 2}
+--- !u!114 &1590392222473891176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290627859799021664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a88d9468fc873df4b933fcdd35c75161, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2512044136680325649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,9 +217,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   _canWallRunColor: {r: 0.7264151, g: 0.034227416, b: 0, a: 1}
-  _cannotWallRunColor: {r: 1, g: 0.9070784, b: 0, a: 1}
---- !u!65 &8246980565032525458
-BoxCollider:
+  _cannotWallRunColor: {r: 0.8584906, g: 0.7776915, b: 0, a: 1}
+--- !u!136 &3117023626850361953
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -223,6 +236,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}

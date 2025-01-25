@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: PlayerMovementSettings
   m_EditorClassIdentifier: 
   _speed: 30
-  _maxSpeed: 15
+  _maxSpeed: 50
   _wallSlideSpeed: 15
-  _rotationSmoothness: 30
+  _rotationSpeed: 30
+  _alignementSpeed: 20
   _airControl: 0.9
   _fallingSpeedOnObstacle: 2
-  _wallSnapForce: 20
+  _acceleratonFactor: 20
+  _decelerationFactor: 20
+  _wallNormalThreshold: 0.5
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 320
@@ -26,9 +29,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   _obstaclesDetectionRange: 0.2
-  _walkableDetectionRange: 0.2
-  _wallDetectionOffset: 0.7
-  _wallNormalThreshold: 0.75
+  _walkableDetectionRange: 0.7
+  _wallDetectionOffset: 0.62
   _movementDirectionColor: {r: 0.11877227, g: 1, b: 0, a: 1}
   _walkableDetectionColor: {r: 1, g: 0.3058511, b: 0, a: 1}
   _obstacleDetectionColor: {r: 0.57939434, g: 0, b: 1, a: 1}

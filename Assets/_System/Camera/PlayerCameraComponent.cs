@@ -58,6 +58,7 @@ public class PlayerCameraComponent : MonoBehaviour
     {
         if (_target == null)
             return;
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(_target.position, 0.2f);
     }

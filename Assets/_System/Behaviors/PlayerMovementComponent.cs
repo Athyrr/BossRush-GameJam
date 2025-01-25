@@ -243,7 +243,7 @@ public class PlayerMovementComponent : MonoBehaviour
 
         if (_walkMode == WalkMode.Kinematic)
         {
-            if (!Physics.CheckSphere(targetPosition, _halfWidth, _settings.ObstacleLayer))
+            if (!Physics.CheckSphere(targetPosition, _halfWidth, _settings.WalkableLayer))
             {
                 Vector3 displacement = targetPosition - _rigidbody.position;
                 _rigidbody.position += displacement;

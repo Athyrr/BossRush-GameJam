@@ -237,6 +237,5 @@ public class PlayerControllerComponent : MonoBehaviour
         _wallRun.WallRun();
     }
 
-
     #endregion
 }

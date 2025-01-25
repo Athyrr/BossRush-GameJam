@@ -71,6 +71,24 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Shoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""128f18ec-113a-447e-a4ae-f3761f15b3d8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Aim"",
+                    ""type"": ""Button"",
+                    ""id"": ""db475bc2-d828-406a-81d0-b32f25a26706"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -99,7 +117,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""85b90f84-e1e5-4607-ac5e-1d7360c9a83c"",
-                    ""path"": ""<Mouse>/rightButton"",
+                    ""path"": ""<Keyboard>/leftAlt"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -216,6 +234,50 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""action"": ""WallRun"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""310916e3-2b4e-4665-b4ae-89b45397a5d9"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b0886ed3-002f-4dc0-937d-514d00b46973"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cde9aafd-5897-424d-95df-c7e606ec7b11"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b9de5a6-a256-417a-8f59-93231ff5c0c4"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -229,6 +291,8 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         m_Game_Dash = m_Game.FindAction("Dash", throwIfNotFound: true);
         m_Game_Look = m_Game.FindAction("Look", throwIfNotFound: true);
         m_Game_WallRun = m_Game.FindAction("WallRun", throwIfNotFound: true);
+        m_Game_Shoot = m_Game.FindAction("Shoot", throwIfNotFound: true);
+        m_Game_Aim = m_Game.FindAction("Aim", throwIfNotFound: true);
     }
 
     ~@GameInputs()
@@ -300,6 +364,8 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_Dash;
     private readonly InputAction m_Game_Look;
     private readonly InputAction m_Game_WallRun;
+    private readonly InputAction m_Game_Shoot;
+    private readonly InputAction m_Game_Aim;
     public struct GameActions
     {
         private @GameInputs m_Wrapper;
@@ -309,6 +375,8 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         public InputAction @Dash => m_Wrapper.m_Game_Dash;
         public InputAction @Look => m_Wrapper.m_Game_Look;
         public InputAction @WallRun => m_Wrapper.m_Game_WallRun;
+        public InputAction @Shoot => m_Wrapper.m_Game_Shoot;
+        public InputAction @Aim => m_Wrapper.m_Game_Aim;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -333,6 +401,12 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @WallRun.started += instance.OnWallRun;
             @WallRun.performed += instance.OnWallRun;
             @WallRun.canceled += instance.OnWallRun;
+            @Shoot.started += instance.OnShoot;
+            @Shoot.performed += instance.OnShoot;
+            @Shoot.canceled += instance.OnShoot;
+            @Aim.started += instance.OnAim;
+            @Aim.performed += instance.OnAim;
+            @Aim.canceled += instance.OnAim;
         }
 
         private void UnregisterCallbacks(IGameActions instance)
@@ -352,6 +426,12 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @WallRun.started -= instance.OnWallRun;
             @WallRun.performed -= instance.OnWallRun;
             @WallRun.canceled -= instance.OnWallRun;
+            @Shoot.started -= instance.OnShoot;
+            @Shoot.performed -= instance.OnShoot;
+            @Shoot.canceled -= instance.OnShoot;
+            @Aim.started -= instance.OnAim;
+            @Aim.performed -= instance.OnAim;
+            @Aim.canceled -= instance.OnAim;
         }
 
         public void RemoveCallbacks(IGameActions instance)
@@ -376,5 +456,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnWallRun(InputAction.CallbackContext context);
+        void OnShoot(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
     }
 }

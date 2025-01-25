@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04250be0b4ff4da4aa7ae88330834f53, type: 3}
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
-  _smoothness: 0
-  _minLookAngle: -180
-  _maxLookAngle: 180
+  _yawSensitivity: 200
+  _pitchSensitivity: 200
+  _followSpeed: 200
+  _rotationLimits: {x: -35, y: 45}
+  _inverseYaxe: 0

@@ -9,7 +9,7 @@ public class PlayerCameraComponent : MonoBehaviour
     private Transform _target = null;
 
     [SerializeField]
-    private Vector3 _offset = new Vector3(0, 2, -5);  // L'offset que tu veux garder
+    private Vector3 _offset = new Vector3(1.3f, 1, -3);
 
     private float _yaw;
     private float _pitch;
@@ -32,7 +32,7 @@ public class PlayerCameraComponent : MonoBehaviour
         _yaw = angles.y;
         _pitch = angles.x;
 
-        _offset = transform.position - _target.position; 
+        //_offset = transform.position - _target.position;
     }
 
     public bool Look(Vector2 direction, float delta)
@@ -40,7 +40,7 @@ public class PlayerCameraComponent : MonoBehaviour
         if (_target == null)
             return false;
 
-        _yaw += direction.x * _cameraSettings.YawSensitivity* delta;
+        _yaw += direction.x * _cameraSettings.YawSensitivity * delta;
         _pitch -= direction.y * _cameraSettings.PitchSensitivity * delta;
 
         _pitch = Mathf.Clamp(_pitch, _cameraSettings.RotationLimits.x, _cameraSettings.RotationLimits.y);
@@ -58,8 +58,6 @@ public class PlayerCameraComponent : MonoBehaviour
     {
         if (_target == null)
             return;
-
-        // Afficher un gizmo de position de la cible (pour le débogage)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(_target.position, 0.2f);
     }

@@ -4,9 +4,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CameraSettings", menuName = "Game/Camera/Camera")]
 public class PlayerCameraSO : ScriptableObject
 {
-    [Header("Speed")]
+    [Header("Sensitivity")]
     [SerializeField]
-    private float _rotationSpeed = 200;
+    private float _yawSensitivity = 200;
+
+    [SerializeField]
+    private float _pitchSensitivity = 200;
+
 
     [SerializeField]
     private float _followSpeed = 200;
@@ -21,7 +25,8 @@ public class PlayerCameraSO : ScriptableObject
     private bool _inverseYaxe = false;
 
 
-    public float RotationSpeed => _rotationSpeed;
+    public float YawSensitivity => _yawSensitivity;
+    public float PitchSensitivity => _pitchSensitivity;
     public float FollowSpeed => _followSpeed;
     public Vector2 RotationLimits => _rotationLimits;
     public bool inverseYaxe => _inverseYaxe;

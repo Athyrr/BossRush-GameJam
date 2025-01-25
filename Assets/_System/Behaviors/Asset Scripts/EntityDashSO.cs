@@ -35,8 +35,7 @@ public class EntityDashSO : ScriptableObject
 
     [Header("Detection")]
     [SerializeField]
-    [Tooltip("The walls layer mask.")]
-    private LayerMask _wallLayer = ~0;
+    private LayerMask _obstacleslLayer = ~0;
 
     [SerializeField]
     [Tooltip("The NMEs layer mask.")]
@@ -53,7 +52,7 @@ public class EntityDashSO : ScriptableObject
     public AnimationCurve Momentum => _dashMomentum;
     public bool AllowDashWhileStanding => _allowDashWhileStanding;
     public bool AllowDashInAir => _allowDashInAir;
-    public LayerMask WallLayer => _wallLayer;
+    public LayerMask ObstacleslLayer => _obstacleslLayer;
     public LayerMask EnemyLayer => _enemiesLayer;
     public Color DebugColor => _debugColor; 
 }

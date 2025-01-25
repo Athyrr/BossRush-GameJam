@@ -9,12 +9,17 @@ public class EntityMovementSO : ScriptableObject
 
     [SerializeField]
     private float _maxSpeed = 0;
-    
+
     [SerializeField]
     private float _wallSlideSpeed = 0;
 
     [SerializeField]
-    private float _rotationSmoothness = 0;
+    [Min(1)]
+    private float _rotationSpeed = 0;
+
+    [SerializeField]
+    [Min(1)]
+    private float _alignementSpeed = 0;
 
 
     [Header("Control")]
@@ -28,9 +33,21 @@ public class EntityMovementSO : ScriptableObject
     private float _fallingSpeedOnObstacle = 1f;
 
     [SerializeField]
-    private float _wallSnapForce = 1f;
+    [Min(1.0f)]
+    private float _acceleratonFactor = 1f;
 
-    //[Header("Slope")]
+    [SerializeField]
+    [Min(1.0f)]
+    private float _decelerationFactor = 1f;
+
+
+    [Header("Slopes")]
+
+    [SerializeField]
+    [Range(0, 1)]
+    private float _wallNormalThreshold = 0.5f;
+
+
     //[SerializeField]
     //[Tooltip("The max angle to considere that the player is on slope.")]
     //private float _maxSlopeAngle = 0f;
@@ -53,6 +70,9 @@ public class EntityMovementSO : ScriptableObject
     [SerializeField]
     private float _walkableDetectionRange = 0.2f;
 
+    [SerializeField]
+    private float _wallDetectionOffset = 0.2f;
+
 
     [Header("Debug")]
     [SerializeField]
@@ -68,16 +88,20 @@ public class EntityMovementSO : ScriptableObject
     public float Speed => _speed;
     public float MaxSpeed => _maxSpeed;
     public float WallSlideSpeed => _wallSlideSpeed;
-    public float RotationSmoothness => _rotationSmoothness;
+    public float AlignementSpeed => _alignementSpeed;
+    public float RotationSpeed => _rotationSpeed;
 
     public float AirControl => Mathf.Clamp01(_airControl);
     public float FallingSpeedOnObstacles => _fallingSpeedOnObstacle;
-    public float WallSnapForce => _wallSnapForce;
+    public float AcceleratonFactor => _acceleratonFactor;
+    public float DecelerationFactor => _decelerationFactor;
+    public float WallNormalThreshold => _wallNormalThreshold;
 
     public LayerMask WalkableLayer => _wallkableLayer;
     public LayerMask ObstacleLayer => _obstacleLayer;
     public float ObstacleDetectionRange => _obstaclesDetectionRange;
     public float WalkableDetectionRange => _walkableDetectionRange;
+    public float ForwardDetectionOffset => _wallDetectionOffset;
 
     public Color MovementDirectionColor => _movementDirectionColor;
     public Color WalkableDetectionColor => _walkableDetectionColor;

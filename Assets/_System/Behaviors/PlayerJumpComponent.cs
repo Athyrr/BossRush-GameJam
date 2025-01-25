@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerJumpComponent : MonoBehaviour
@@ -14,8 +15,9 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private float _coyoteTimeCounter;
 
-    #endregion
+    private float _halfHeight;
 
+    #endregion
 
     #region Lifecycle
 
@@ -23,6 +25,8 @@ public class PlayerJumpComponent : MonoBehaviour
     {
         if (_rigidbody == null)
             _rigidbody = GetComponent<Rigidbody>();
+
+        _halfHeight = GetComponent<Collider>().bounds.extents.y;
     }
 
     private void Start()
@@ -56,13 +60,14 @@ public class PlayerJumpComponent : MonoBehaviour
 
     #endregion
 
-
     #region Public API
 
     public bool Jump()
     {
-        if (!_player.IsGrounded && _coyoteTimeCounter <= 0f)
+        if (!CanJump() && _coyoteTimeCounter <= 0f)
             return false;
+
+        _rigidbody.isKinematic = false;
 
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
         _rigidbody.AddForce(Vector3.up * _settings.JumpForce, ForceMode.Impulse);
@@ -74,13 +79,19 @@ public class PlayerJumpComponent : MonoBehaviour
 
     #endregion
 
-
     #region Private API
+
+    private bool CanJump()
+    {
+        return Physics.Raycast(_rigidbody.position, -transform.up, _halfHeight + _settings.JumpableDetectionRange, _settings.JumpableLayer);
+    }
 
     private void HandleFalling()
     {
-        if (_player.IsGrounded)
+        if (CanJump())
             return;
+
+        _rigidbody.isKinematic = false;
 
         _rigidbody.AddForce(Vector3.down * _settings.GravityMultiplier, ForceMode.Acceleration);
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, Mathf.Max(_rigidbody.linearVelocity.y, -_settings.MaxFallingSpeed), _rigidbody.linearVelocity.z);
@@ -88,7 +99,7 @@ public class PlayerJumpComponent : MonoBehaviour
 
     private void HandleCoyoteTime(float delta)
     {
-        if (_player.IsGrounded)
+        if (CanJump())
             _coyoteTimeCounter = _settings.CoyoteTime;
         else
             _coyoteTimeCounter -= delta;

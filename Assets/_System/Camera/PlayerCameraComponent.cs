@@ -8,19 +8,11 @@ public class PlayerCameraComponent : MonoBehaviour
     [SerializeField]
     private Transform _target = null;
 
-
-    private float _rotationSpeed = 0;
-
-    private float _followSpeed = 0;
-
-    private Vector2 _rotationLimits = Vector2.zero;
+    [SerializeField]
+    private Vector3 _offset = new Vector3(0, 2, -5);  // L'offset que tu veux garder
 
     private float _yaw;
-
     private float _pitch;
-
-
-    Vector3 _offset = Vector3.zero;
 
     private void Start()
     {
@@ -36,13 +28,11 @@ public class PlayerCameraComponent : MonoBehaviour
             return;
         }
 
-        Init();
-
         Vector3 angles = transform.eulerAngles;
         _yaw = angles.y;
         _pitch = angles.x;
 
-        _offset = transform.position - _target.position;
+        _offset = transform.position - _target.position; 
     }
 
     public bool Look(Vector2 direction, float delta)
@@ -50,28 +40,18 @@ public class PlayerCameraComponent : MonoBehaviour
         if (_target == null)
             return false;
 
-        direction.Normalize();
+        _yaw += direction.x * _cameraSettings.YawSensitivity* delta;
+        _pitch -= direction.y * _cameraSettings.PitchSensitivity * delta;
 
-        _yaw += direction.x * _rotationSpeed * delta;
-        _pitch -= direction.y * _rotationSpeed * delta;
-        _pitch = Mathf.Clamp(_pitch, _rotationLimits.x, _rotationLimits.y);
+        _pitch = Mathf.Clamp(_pitch, _cameraSettings.RotationLimits.x, _cameraSettings.RotationLimits.y);
 
-        Quaternion rotation = Quaternion.Euler(_pitch, _yaw, 0);
-        Vector3 rotatedOffset = rotation * _offset;
+        Quaternion desiredRotation = Quaternion.Euler(_pitch, _yaw, 0);
+        Vector3 desiredPosition = _target.position + desiredRotation * _offset;
 
-        Vector3 targetPosition = _target.position + rotatedOffset;
-        transform.position = Vector3.Lerp(transform.position, targetPosition, _followSpeed * Time.deltaTime);
-
-        transform.LookAt(_target.position + _offset.x * transform.right);
+        transform.position = Vector3.Lerp(transform.position + _offset, desiredPosition, _cameraSettings.FollowSpeed * Time.deltaTime);
+        transform.rotation = desiredRotation;
 
         return true;
-    }
-
-    private void Init()
-    {
-        _rotationSpeed = _cameraSettings.RotationSpeed;
-        _followSpeed = _cameraSettings.FollowSpeed;
-        _rotationLimits = _cameraSettings.RotationLimits;
     }
 
     private void OnDrawGizmos()
@@ -79,7 +59,8 @@ public class PlayerCameraComponent : MonoBehaviour
         if (_target == null)
             return;
 
+        // Afficher un gizmo de position de la cible (pour le débogage)
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(_target.position, _offset.magnitude);
+        Gizmos.DrawWireSphere(_target.position, 0.2f);
     }
 }

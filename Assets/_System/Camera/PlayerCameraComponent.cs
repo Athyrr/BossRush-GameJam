@@ -48,8 +48,8 @@ public class PlayerCameraComponent : MonoBehaviour
         Quaternion desiredRotation = Quaternion.Euler(_pitch, _yaw, 0);
         Vector3 desiredPosition = _target.position + desiredRotation * _offset;
 
-        transform.position = Vector3.Lerp(transform.position + _offset, desiredPosition, _cameraSettings.FollowSpeed * Time.deltaTime);
-        transform.rotation = desiredRotation;
+        transform.position = Vector3.Lerp(transform.position /*+ _offset*/, desiredPosition, _cameraSettings.FollowSpeed * delta);
+        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, _cameraSettings.FollowSpeed * delta);
 
         return true;
     }

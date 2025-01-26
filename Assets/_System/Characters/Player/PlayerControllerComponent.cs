@@ -76,12 +76,7 @@ public class PlayerControllerComponent : MonoBehaviour
     private void Update()
     {
         if (_isAiming)
-        { 
-        UpdateAiming();
-        
-        
-        }
-        
+            UpdateAiming();
     }
 
     void FixedUpdate()
@@ -190,7 +185,6 @@ public class PlayerControllerComponent : MonoBehaviour
     private void UpdateCameraLook(float delta)
     {
         _cameraLookInput.Normalize();
-
         _camera.Look(_cameraLookInput, delta);
     }
 

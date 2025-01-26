@@ -15,12 +15,13 @@ MonoBehaviour:
   _speed: 30
   _maxSpeed: 50
   _wallSlideSpeed: 15
-  _rotationSpeed: 30
+  _rotationSpeed: 15
   _alignementSpeed: 10
   _airControl: 0.9
   _fallingSpeedOnObstacle: 2
   _acceleratonFactor: 20
   _decelerationFactor: 20
+  _stampFactorOnAim: 0.7
   _wallNormalThreshold: 0.5
   _obstacleLayer:
     serializedVersion: 2

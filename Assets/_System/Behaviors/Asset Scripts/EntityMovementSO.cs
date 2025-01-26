@@ -40,6 +40,10 @@ public class EntityMovementSO : ScriptableObject
     [Min(1.0f)]
     private float _decelerationFactor = 1f;
 
+    [SerializeField]
+    [Range(0, 1)]
+    private float _stampFactorOnAim = 0.7f;
+
 
     [Header("Slopes")]
 
@@ -95,6 +99,7 @@ public class EntityMovementSO : ScriptableObject
     public float FallingSpeedOnObstacles => _fallingSpeedOnObstacle;
     public float AcceleratonFactor => _acceleratonFactor;
     public float DecelerationFactor => _decelerationFactor;
+    public float StampFactorOnAim => _stampFactorOnAim;
     public float WallNormalThreshold => _wallNormalThreshold;
 
     public LayerMask WalkableLayer => _wallkableLayer;

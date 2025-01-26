@@ -75,8 +75,13 @@ public class PlayerControllerComponent : MonoBehaviour
 
     private void Update()
     {
-        if (_isAiming) 
-            UpdateAiming();
+        if (_isAiming)
+        { 
+        UpdateAiming();
+        
+        
+        }
+        
     }
 
     void FixedUpdate()
@@ -154,7 +159,7 @@ public class PlayerControllerComponent : MonoBehaviour
         Vector3 movement3D = cameraForward * _movementDirection.y + cameraRight * _movementDirection.x;
         movement3D.Normalize();
 
-        _movement.Move(movement3D, delta);
+        _movement.Move(movement3D, delta, _isAiming);
 
         _previousMovementDirection = movement3D;
     }

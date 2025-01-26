@@ -40,6 +40,7 @@ public class PlayerMovementComponent : MonoBehaviour
     private UnityEvent<MovementInfo> _onMoveEnd = new();
     private Vector3 _movementDirection;
     private RaycastHit _surfaceHit;
+    private bool _isAiming;
 
     #endregion
 
@@ -80,7 +81,6 @@ public class PlayerMovementComponent : MonoBehaviour
     private void FixedUpdate()
     {
         DetectSurface();
-        //Debug.Log("Move mode: " + _walkMode.ToString());
     }
 
     private void Init()
@@ -94,8 +94,10 @@ public class PlayerMovementComponent : MonoBehaviour
 
     public UnityEvent<MovementInfo> OnMoveStart => _onMoveStart;
 
-    public bool Move(Vector3 direction, float delta)
+    public bool Move(Vector3 direction, float delta, bool isAiming)
     {
+        _isAiming = isAiming;
+
         if (direction == Vector3.zero)
         {
 
@@ -136,7 +138,10 @@ public class PlayerMovementComponent : MonoBehaviour
                 break;
         }
 
-        _rigidbody.MoveRotation(Quaternion.Slerp(_rigidbody.rotation, Quaternion.LookRotation(direction), delta * _settings.RotationSpeed));
+        if (isAiming)
+            _rigidbody.MoveRotation(Quaternion.Slerp(_rigidbody.rotation, Quaternion.LookRotation(Camera.main.transform.forward), delta * _settings.RotationSpeed));
+        else
+            _rigidbody.MoveRotation(Quaternion.Slerp(_rigidbody.rotation, Quaternion.LookRotation(direction), delta * _settings.RotationSpeed));
 
         if (_previousMovement != Vector3.zero)
         {
@@ -243,7 +248,7 @@ public class PlayerMovementComponent : MonoBehaviour
 
         if (_walkMode == WalkMode.Kinematic)
         {
-            if (!Physics.CheckSphere(targetPosition, _halfWidth, _settings.ObstacleLayer))
+            if (!Physics.CheckSphere(targetPosition, _halfWidth, _settings.WalkableLayer))
             {
                 Vector3 displacement = targetPosition - _rigidbody.position;
                 _rigidbody.position += displacement;
@@ -274,12 +279,14 @@ public class PlayerMovementComponent : MonoBehaviour
     {
         float control = _isGrounded ? 1 : _settings.AirControl;
 
+        float aimStamp = _isAiming ? _settings.StampFactorOnAim : 1;
+
         velocity = direction * _settings.Speed * control * _settings.AcceleratonFactor * delta;
         velocity = Vector3.ProjectOnPlane(velocity, _surfaceNormal);
 
         _rigidbody.linearVelocity += velocity;
         Vector3 clamped = Vector3.ClampMagnitude(_rigidbody.linearVelocity, _settings.MaxSpeed);
-        _rigidbody.linearVelocity = new(clamped.x, _rigidbody.linearVelocity.y, clamped.z);
+        _rigidbody.linearVelocity = new Vector3(clamped.x, _rigidbody.linearVelocity.y, clamped.z) * aimStamp;
     }
 
     private void WallRun(Vector3 direction, float deltaTime)

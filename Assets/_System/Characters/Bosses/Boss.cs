@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Boss : MonoBehaviour //Entity
+public class Boss : MonoBehaviour
 {
     public Transform Target { get; private set; }
 

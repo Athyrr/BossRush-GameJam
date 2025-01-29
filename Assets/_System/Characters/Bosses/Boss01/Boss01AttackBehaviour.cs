@@ -1,7 +1,7 @@
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class Boss01AttackBehaviour : MonoBehaviour //BossAttackBehaviour
+public class Boss01AttackBehaviour : MonoBehaviour
 {
     private Boss01 _boss;
     [SerializeField] private WeaponShoot _turretWeapon;
@@ -19,15 +19,19 @@ public class Boss01AttackBehaviour : MonoBehaviour //BossAttackBehaviour
     private void Awake()
     {
         _boss = GetComponent<Boss01>();
+        _turretWeapon.Bullet = _bullet;
 
     }
 
     private void Update()
     {
-        if(_boss.animState.IsName("Turret"))
+        if(_boss.animState.IsName("Turret") && _boss.CanShoot)
         {
-            TurretBulletUpdate();
-            _turretWeapon.Shoot();
+            if (_turretWeapon.Shoot()) //bon il croit toucher à chaque fois le joueur du coup faut que je fix ça
+            {
+                TurretBulletUpdate();
+                _boss.PlayerHit++;
+            }
         }
     }
 
@@ -46,14 +50,15 @@ public class Boss01AttackBehaviour : MonoBehaviour //BossAttackBehaviour
 
     private void TurretBulletUpdate()
     {
+        superShotGauge++;
         if(superShotGauge >= superShotGaugeMax)
         {
-            _turretWeapon._bullet = _superBullet;
+            _turretWeapon.Bullet = _superBullet;
             superShotGauge = 0;
         }
         else
         {
-            _turretWeapon._bullet = _bullet;
+            _turretWeapon.Bullet = _bullet;
         }
     }
 }

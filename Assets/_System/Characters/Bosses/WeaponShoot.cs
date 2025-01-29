@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class WeaponShoot : MonoBehaviour //purpose of this file = give to Fabien for his Weapon:MB script
 {
-    public GameObject _bullet; //need to modify this in Boss01AttackBehaviour
-    private int _bounceCount;
-    private float _bulletSpeed;
+    public GameObject Bullet; //need to modify this in Boss01AttackBehaviour
+    private int _bounceCount = 5;
+    private float _bulletSpeed = 200f;
+    private Vector3 gizmoHitPos;
 
     private float _shotTime;
     [SerializeField] private float _shotCooldown = .2f;
@@ -14,20 +15,23 @@ public class WeaponShoot : MonoBehaviour //purpose of this file = give to Fabien
     {
         //take _bullet, _bounceCount and _bulletSpeed via SO
     }
-    public void Shoot()
+    public bool Shoot()
     {
         if (_shotTime + _shotCooldown < Time.time)
         {
             _shotTime = Time.time;
-            GameObject bullet = Instantiate(_bullet, transform.position, Quaternion.identity);
+            GameObject bullet = Instantiate(Bullet, transform.position, Quaternion.identity);
             int bounces = _bounceCount;
 
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit))
             {
+                gizmoHitPos = hit.point;
                 StartCoroutine(SpawnBullet(bullet, hit, bounces));
+                return true;
             }
             //PS: you have to start a coroutine even if we hit nothing to make a bullet go anyway
         }
+        return false;
     }
 
     private IEnumerator SpawnBullet(GameObject bullet, RaycastHit hit, int bounceCount)

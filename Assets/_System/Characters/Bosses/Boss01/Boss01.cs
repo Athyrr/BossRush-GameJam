@@ -17,6 +17,7 @@ public class Boss01 : Boss
     [SerializeField] private float _rangeMult = 5;
 
     [SerializeField] private GameObject turret;
+    public bool CanShoot = false;
 
 
     private void Start()
@@ -34,8 +35,11 @@ public class Boss01 : Boss
             morphChance *= _rangeMult;
 
         morphChance = Mathf.Clamp(morphChance, 1, 101);
+        Debug.Log("morphChance = " + morphChance);
+        var r = Random.Range(1, 101);
+        Debug.Log("random = " + r);
 
-        if (Random.Range(1, 101) < morphChance && IsGrounded(true))
+        if (r < morphChance && (IsGrounded(true) || animState.IsName("Turret")))
         {
             PlayerHit = 0; MorphFailure = 0;
             _anim.SetTrigger("trMorph");
@@ -49,6 +53,7 @@ public class Boss01 : Boss
         transform.GetComponent<Rigidbody>().isKinematic = true;
         transform.GetComponent<Boss01Mvt>().enabled = false;
         turret.SetActive(false);
+        CanShoot = false;
 
     }
     private void BallMorph()
@@ -60,7 +65,7 @@ public class Boss01 : Boss
     private void TurretMorph()
     {
         turret.SetActive(true);
-        GetComponent<SphereCollider>().enabled = false;
+        CanShoot = true;
 
         transform.up = GetGroundNormal(true);
         turret.transform.position = transform.position + transform.up * 2;

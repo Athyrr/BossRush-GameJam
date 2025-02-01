@@ -1780,6 +1780,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2164605986492843082, guid: 43af5769838b4cf498b443cd1da7d413, type: 3}
+      propertyPath: AttackCooldown
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2164605986492843082, guid: 43af5769838b4cf498b443cd1da7d413, type: 3}
+      propertyPath: AttackDuration
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4090464044551358853, guid: 43af5769838b4cf498b443cd1da7d413, type: 3}
       propertyPath: m_Name
       value: Boss03

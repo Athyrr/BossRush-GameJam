@@ -8,8 +8,8 @@ public class BossMvt : MonoBehaviour
     [HideInInspector] public Vector3 Dir;
     [HideInInspector] public Rigidbody Rb;
 
-    private enum Phase { Chasing, Roaming };
-    private Phase _phase = Phase.Chasing;
+    protected enum Phase { Chasing, Roaming };
+    protected Phase _phase = Phase.Chasing;
 
     [SerializeField, Range(0, 360)] float minRoamAngleRange = 315;
     [SerializeField, Range(0, 360)] float maxRoamAngleRange = 345;
@@ -46,13 +46,13 @@ public class BossMvt : MonoBehaviour
         ChangePhaseTry();
     }
 
-    private void ChaseDirUpdate()
+    protected void ChaseDirUpdate()
     {
         Dir = (_boss.Target.position - transform.position).normalized;
         Dir.y = 0;
     }
 
-    private void RoamDirUpdate()
+    protected void RoamDirUpdate()
     {
         Vector3 initialRoamDir = (transform.position - _boss.Target.position).normalized;
         initialRoamDir.y = 0;
@@ -68,7 +68,7 @@ public class BossMvt : MonoBehaviour
         _lastDir = Dir;
     }
 
-    private void RoamRangeAngleUpdate()
+    protected void RoamRangeAngleUpdate()
     {
         float dist = Vector3.Distance(transform.position, _boss.Target.position);
 
@@ -80,7 +80,7 @@ public class BossMvt : MonoBehaviour
             _roamAngleRange = minRoamAngleRange + dist * roamAngleMult;
     }
 
-    private void ChangePhaseTry()
+    protected virtual void ChangePhaseTry()
     {
         if (_chaseTime + _chaseMinDuration < Time.time && _phase != Phase.Roaming)
         {

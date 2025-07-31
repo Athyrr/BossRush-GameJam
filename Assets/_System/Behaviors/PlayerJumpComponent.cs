@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerJumpComponent : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerJumpComponent : MonoBehaviour
     private float _coyoteTimeCounter;
 
     private float _halfHeight;
+
+    public UnityEvent OnJumpStart = new();
 
     #endregion
 
@@ -72,6 +75,8 @@ public class PlayerJumpComponent : MonoBehaviour
         _rigidbody.linearVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
         _rigidbody.AddForce(Vector3.up * _settings.JumpForce, ForceMode.Impulse);
         _coyoteTimeCounter = 0f;
+
+        OnJumpStart.Invoke();
 
         return true;
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerDashComponent : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class PlayerDashComponent : MonoBehaviour
     private LayerMask _enemyLayer;
 
     private Rigidbody _rigidbody = null;
+
+    public UnityEvent OnDashStart = new();
 
     /// <summary>
     /// Dash start postion.
@@ -149,6 +152,8 @@ public class PlayerDashComponent : MonoBehaviour
         _runningCooldown = _coolddown;
 
         //invoke start dash event
+
+        OnDashStart.Invoke();
 
         return true;
     }
